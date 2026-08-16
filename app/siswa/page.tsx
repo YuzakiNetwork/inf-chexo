@@ -41,6 +41,9 @@ type StudentProfile = {
 
 type ClassRelation = { name?: string | null } | Array<{ name?: string | null }> | null | undefined;
 
+type MaterialRow = { id: string; slug: string | null; title: string };
+type ProgressRow = { material_id: string; progress: number | null };
+
 function Icon({ children }: { children: React.ReactNode }) {
   return <span className="dash-icon" aria-hidden="true">{children}</span>;
 }
@@ -82,14 +85,16 @@ export default function SiswaDashboard() {
 
         if (materialError) throw materialError;
 
-        const materialIds = (materialRows || []).map((item) => item.id);
+        const typedMaterials = (materialRows || []) as MaterialRow[];
+        const materialIds = typedMaterials.map((item: MaterialRow) => item.id);
         const { data: progressRows, error: progressError } = materialIds.length
           ? await supabase.from('learning_progress').select('material_id, progress').eq('student_id', user.id).in('material_id', materialIds)
           : { data: [], error: null };
 
         if (progressError) throw progressError;
 
-        const progressMap = new Map((progressRows || []).map((row) => [row.material_id, row.progress]));
+        const typedProgress = (progressRows || []) as ProgressRow[];
+        const progressMap = new Map(typedProgress.map((row: ProgressRow) => [row.material_id, row.progress ?? 0]));
         const classRelation = profile?.classes as unknown as ClassRelation;
         const classValue = Array.isArray(classRelation) ? classRelation[0]?.name : classRelation?.name;
 
@@ -100,7 +105,7 @@ export default function SiswaDashboard() {
             class_id: profile?.class_id || null,
             className: classValue || null,
           });
-          setMaterials((materialRows || []).map((item) => ({
+          setMaterials(typedMaterials.map((item: MaterialRow) => ({
             id: item.id,
             slug: item.slug,
             title: item.title,
