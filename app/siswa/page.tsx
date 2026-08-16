@@ -38,6 +38,8 @@ type StudentProfile = {
   className?: string | null;
 };
 
+type ClassRelation = { name?: string | null } | Array<{ name?: string | null }> | null | undefined;
+
 function Icon({ children }: { children: React.ReactNode }) {
   return <span className="dash-icon" aria-hidden="true">{children}</span>;
 }
@@ -87,7 +89,8 @@ export default function SiswaDashboard() {
         if (progressError) throw progressError;
 
         const progressMap = new Map((progressRows || []).map((row) => [row.material_id, row.progress]));
-        const classValue = Array.isArray(profile?.classes) ? profile?.classes[0]?.name : profile?.classes?.name;
+        const classRelation = profile?.classes as unknown as ClassRelation;
+        const classValue = Array.isArray(classRelation) ? classRelation[0]?.name : classRelation?.name;
 
         if (mounted) {
           setStudent({
