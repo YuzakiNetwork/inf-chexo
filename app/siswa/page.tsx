@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
+import { RoleGuard } from '@/components/role-guard';
 import { supabase } from '@/lib/supabase';
 
 const fallbackSubjects = [
