@@ -24,6 +24,8 @@ type SupabaseMaterial = {
   }>;
 };
 
+type SupabaseMaterialRow = SupabaseMaterial;
+
 function mapMaterial(row: SupabaseMaterial): Material {
   const assets = (row.material_assets ?? []).map((asset) => ({
     type: asset.type,
@@ -57,7 +59,8 @@ export async function fetchMaterials(): Promise<{ data: Material[]; source: 'sup
     .order('created_at', { ascending: true });
 
   if (error || !data?.length) return { data: fallbackMaterials, source: error ? 'local' : 'supabase' };
-  return { data: data.map((row) => mapMaterial(row as SupabaseMaterial)), source: 'supabase' };
+  const rows: SupabaseMaterialRow[] = data as unknown as SupabaseMaterialRow[];
+  return { data: rows.map((row: SupabaseMaterialRow) => mapMaterial(row)), source: 'supabase' };
 }
 
 export async function fetchMaterialBySlug(slug: string): Promise<{ data: Material | null; source: 'supabase' | 'local' }> {
@@ -72,5 +75,5 @@ export async function fetchMaterialBySlug(slug: string): Promise<{ data: Materia
     .maybeSingle();
 
   if (error || !data) return { data: fallbackMaterials.find((item) => item.id === slug) ?? null, source: 'local' };
-  return { data: mapMaterial(data as SupabaseMaterial), source: 'supabase' };
+  return { data: mapMaterial(data as unknown as SupabaseMaterial), source: 'supabase' };
 }
