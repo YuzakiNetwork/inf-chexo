@@ -34,7 +34,7 @@ type DashboardMaterial = {
 
 type StudentProfile = {
   full_name: string | null;
-  role: 'student' | 'teacher' | null;
+  role: 'siswa' | 'guru' | null;
   class_id: string | null;
   className?: string | null;
 };
@@ -147,7 +147,7 @@ export default function SiswaDashboard() {
   };
 
   return (
-    <RoleGuard role="student">
+    <RoleGuard role="siswa">
     <main className={`student-dashboard ${dark ? 'theme-dark' : 'theme-light'}`}>
       <aside className="student-sidebar">
         <div className="student-brand">
@@ -237,7 +237,7 @@ export default function SiswaDashboard() {
               </div>
 
               <div className="section-title-row compact"><div><span className="section-kicker">Profil</span><h2>Data siswa</h2></div></div>
-              <div className="teacher-card"><span className="avatar teacher-avatar">{initials(displayName)}</span><span><strong>{displayName}</strong><small>Kelas {className} · {student?.role === 'student' ? 'Siswa' : 'Profil CHEXO'}</small></span></div>
+              <div className="teacher-card"><span className="avatar teacher-avatar">{initials(displayName)}</span><span><strong>{displayName}</strong><small>Kelas {className} · {student?.role === 'siswa' ? 'Siswa' : 'Profil CHEXO'}</small></span></div>
               <div className="teacher-card"><span className="avatar teacher-avatar alt">DB</span><span><strong>{loading ? 'Memuat data...' : `${materials.length || 0} materi tersedia`}</strong><small>{overallProgress}% progress keseluruhan</small></span></div>
             </aside>
           </section>
