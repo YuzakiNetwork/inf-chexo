@@ -1,17 +1,17 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 
-type UserRole = 'student' | 'teacher' | 'administrator';
+type UserRole = 'siswa' | 'guru' | 'administrator';
 
 const protectedRoutes: Record<string, UserRole> = {
-  '/siswa': 'student',
-  '/guru': 'teacher',
+  '/siswa': 'siswa',
+  '/guru': 'guru',
   '/admin': 'administrator',
 };
 
 function portalForRole(role: string | null | undefined) {
-  if (role === 'student') return '/siswa';
-  if (role === 'teacher') return '/guru';
+  if (role === 'siswa') return '/siswa';
+  if (role === 'guru') return '/guru';
   if (role === 'administrator') return '/admin';
   return '/login';
 }
