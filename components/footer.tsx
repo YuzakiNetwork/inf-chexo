@@ -1,3 +1,11 @@
 export function Footer() {
-  return <footer className="footer"><div><strong>CHEXO Ecosystem</strong><span> · Platform pembelajaran Informatika SMAN 1 Cicalengka</span></div><div>v3.0 · Modern UI</div></footer>;
+  return (
+    <footer className="footer">
+      <div>
+        <strong>CHEXO</strong>
+        <span> · Platform Pembelajaran Informatika</span>
+      </div>
+      <div>SMAN 1 Cicalengka · 2026</div>
+    </footer>
+  );
 }
