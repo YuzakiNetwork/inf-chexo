@@ -3,27 +3,9 @@
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 import { RoleGuard } from '@/components/role-guard';
+import { Shell } from '@/components/shell';
+import { BackButton } from '@/components/back-button';
 import { supabase } from '@/lib/supabase';
-
-const fallbackSubjects = [
-  { name: 'Algoritma', value: 92 },
-  { name: 'Pemrograman', value: 86 },
-  { name: 'Basis Data', value: 78 },
-  { name: 'Web', value: 94 },
-  { name: 'Jaringan', value: 81 },
-  { name: 'Dampak Sosial', value: 88 },
-];
-
-const schedule = [
-  { time: '09:45', title: 'Algoritma & Pemrograman', room: 'Ruang Lab 1', active: true },
-  { time: '11:00', title: 'Basis Data', room: 'Ruang Lab 1', active: false },
-  { time: '13:00', title: 'Pengembangan Web', room: 'Ruang Lab 2', active: false },
-];
-
-const events = [
-  { day: '18', month: 'AGT', title: 'Deadline Website Portfolio', type: 'Tugas' },
-  { day: '21', month: 'AGT', title: 'Quiz Jaringan Komputer', type: 'Quiz' },
-];
 
 type DashboardMaterial = {
   id: string;
@@ -44,17 +26,11 @@ type ClassRelation = { name?: string | null } | Array<{ name?: string | null }> 
 type MaterialRow = { id: string; slug: string | null; title: string };
 type ProgressRow = { material_id: string; progress: number | null };
 
-function Icon({ children }: { children: React.ReactNode }) {
-  return <span className="dash-icon" aria-hidden="true">{children}</span>;
-}
-
 function initials(name: string) {
-  return name.split(/\s+/).filter(Boolean).slice(0, 2).map((part) => part[0]).join('').toUpperCase() || 'NS';
+  return name.split(/\s+/).filter(Boolean).slice(0, 2).map((part) => part[0]).join('').toUpperCase() || 'CH';
 }
 
 export default function SiswaDashboard() {
-  const [dark, setDark] = useState(true);
-  const [openMenu, setOpenMenu] = useState(false);
   const [student, setStudent] = useState<StudentProfile | null>(null);
   const [materials, setMaterials] = useState<DashboardMaterial[]>([]);
   const [loading, setLoading] = useState(true);
@@ -114,7 +90,7 @@ export default function SiswaDashboard() {
         }
       } catch (error) {
         console.error('[CHEXO] dashboard data error', error);
-        if (mounted) setDataError('Data Supabase belum dapat dimuat. Dashboard menggunakan data sementara.');
+        if (mounted) setDataError('Data Supabase belum dapat dimuat.');
       } finally {
         if (mounted) setLoading(false);
       }
@@ -123,21 +99,16 @@ export default function SiswaDashboard() {
     return () => { mounted = false; };
   }, []);
 
-  const displayName = student?.full_name || 'Nyaruka';
-  const className = student?.className || 'XI';
-  const subjectProgress = materials.length
-    ? materials.slice(0, 6).map((item) => ({ name: item.title.replace(' dan ', ' & '), value: item.progress }))
-    : fallbackSubjects;
-  const average = subjectProgress.length
-    ? Math.round(subjectProgress.reduce((sum, item) => sum + item.value, 0) / subjectProgress.length * 10) / 10
-    : 0;
+  const displayName = student?.full_name || 'Siswa';
+  const className = student?.className || '—';
+
   const completed = materials.filter((item) => item.progress >= 100).length;
   const overallProgress = materials.length
     ? Math.round(materials.reduce((sum, item) => sum + item.progress, 0) / materials.length)
     : 0;
 
   const nextMaterials = useMemo(
-    () => materials.filter((item) => item.progress < 100).slice(0, 2),
+    () => materials.filter((item) => item.progress < 100).slice(0, 3),
     [materials],
   );
 
@@ -148,115 +119,126 @@ export default function SiswaDashboard() {
 
   return (
     <RoleGuard role="siswa">
-    <main className={`student-dashboard ${dark ? 'theme-dark' : 'theme-light'}`}>
-      <aside className="student-sidebar">
-        <div className="student-brand">
-          <div className="student-brand-mark">C</div>
-          <div><strong>CHEXO</strong><span>Informatika</span></div>
-        </div>
-
-        <nav className="student-nav" aria-label="Navigasi siswa">
-          <Link className="student-nav-item active" href="/siswa"><Icon>⌂</Icon><span>Dashboard</span></Link>
-          <Link className="student-nav-item" href="/materi"><Icon>▤</Icon><span>Materi</span></Link>
-          <Link className="student-nav-item" href="/tugas"><Icon>✓</Icon><span>Tugas</span></Link>
-          <Link className="student-nav-item" href="/quiz"><Icon>?</Icon><span>Quiz</span></Link>
-          <Link className="student-nav-item" href="/playground"><Icon>⌘</Icon><span>Playground</span></Link>
-          <Link className="student-nav-item" href="/portfolio"><Icon>▧</Icon><span>Portfolio</span></Link>
-        </nav>
-
-        <div className="student-sidebar-bottom">
-          <Link className="student-nav-item" href="/"><Icon>↩</Icon><span>Kembali ke website</span></Link>
-          <button className="student-nav-item student-logout" type="button" onClick={logout}><Icon>↪</Icon><span>Keluar</span></button>
-        </div>
-      </aside>
-
-      <section className="student-main">
-        <header className="student-topbar">
-          <div className="student-search"><span>⌕</span><input aria-label="Cari" placeholder="Cari materi, tugas, atau halaman..." /></div>
-          <div className="student-top-actions">
-            <button className="icon-button" type="button" onClick={() => setDark(!dark)} aria-label="Ubah tema">{dark ? '☼' : '☾'}</button>
-            <button className="icon-button notification" type="button" aria-label="Notifikasi">♢<i /></button>
-            <button className="student-profile-button" type="button" onClick={() => setOpenMenu(!openMenu)}>
-              <span className="avatar avatar-photo">{initials(displayName)}</span>
-              <span className="profile-copy"><strong>{displayName}</strong><small>Siswa · {className}</small></span>
-              <span>⌄</span>
-            </button>
-            {openMenu && <div className="profile-menu"><strong>{displayName}</strong><span>Kelas {className} · Informatika</span><Link href="/portfolio">Lihat portfolio</Link></div>}
-          </div>
-        </header>
-
-        <div className="student-content">
-          <div className="student-heading">
-            <div>
-              <span className="student-eyebrow">Portal siswa</span>
-              <h1>Dashboard</h1>
-              <p>Pantau pembelajaran Informatika, tugas, dan perkembanganmu dalam satu tempat.</p>
+      <Shell>
+        <div className="container">
+          <div className="page-head">
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 16 }}>
+              <div>
+                <span className="tag" style={{ marginBottom: 12 }}>Portal Siswa</span>
+                <h1>Selamat datang, {displayName.split(' ')[0]}</h1>
+                <p>Kelas {className} · Pantau pembelajaran Informatika, materi, dan tugasmu.</p>
+              </div>
+              <button className="button" type="button" onClick={logout}>
+                Keluar
+              </button>
             </div>
-            <button className="date-pill" type="button">{new Date().toLocaleDateString('id-ID', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' })} <span>⌄</span></button>
           </div>
 
-          {dataError && <div role="status" style={{ marginBottom: 18, padding: '12px 14px', border: '1px solid rgba(59,130,246,.35)', borderRadius: 12, background: 'rgba(59,130,246,.08)', fontSize: 13 }}>{dataError}</div>}
-
-          <section className="welcome-card">
-            <div>
-              <span className="welcome-label">SELAMAT DATANG KEMBALI</span>
-              <h2>Halo, {displayName}!</h2>
-              <p>Kamu telah menyelesaikan <strong>{completed} dari {materials.length || 8} materi</strong>. Lanjutkan materi berikutnya agar progress belajarmu tetap berjalan.</p>
-              <Link href={nextMaterials[0]?.slug ? `/materi/${nextMaterials[0].slug}` : '/materi'} className="welcome-link">{nextMaterials.length ? 'Lanjutkan belajar' : 'Lihat semua materi'} <span>→</span></Link>
+          {dataError && (
+            <div className="card" style={{ marginBottom: 24, padding: 16, background: '#fef2f2', borderColor: '#fecaca' }}>
+              <strong style={{ fontSize: 14, color: 'var(--danger)' }}>{dataError}</strong>
             </div>
-            <div className="welcome-art" aria-hidden="true"><span>CHEXO</span><b>{overallProgress}%</b></div>
+          )}
+
+          {/* Stats */}
+          <div className="stats" style={{ marginBottom: 32 }}>
+            <div className="stat">
+              <span className="stat-value">{loading ? '—' : materials.length}</span>
+              <span className="stat-label">Total Materi</span>
+            </div>
+            <div className="stat">
+              <span className="stat-value">{loading ? '—' : completed}</span>
+              <span className="stat-label">Materi Selesai</span>
+            </div>
+            <div className="stat">
+              <span className="stat-value">{loading ? '—' : `${overallProgress}%`}</span>
+              <span className="stat-label">Progress Belajar</span>
+            </div>
+            <div className="stat">
+              <span className="stat-value">{className}</span>
+              <span className="stat-label">Kelas</span>
+            </div>
+          </div>
+
+          {/* Quick Links */}
+          <section className="section" style={{ paddingTop: 0 }}>
+            <div className="section-head">
+              <div>
+                <h2 className="section-title">Menu Utama</h2>
+                <p className="section-subtitle">Akses cepat ke fitur pembelajaran.</p>
+              </div>
+            </div>
+            <div className="grid grid-3">
+              <Link href="/materi" className="card" style={{ textDecoration: 'none' }}>
+                <h3 className="card-title">Materi</h3>
+                <p className="card-desc">Pelajari materi Informatika sesuai kurikulum.</p>
+              </Link>
+              <Link href="/tugas" className="card" style={{ textDecoration: 'none' }}>
+                <h3 className="card-title">Tugas</h3>
+                <p className="card-desc">Lihat dan kerjakan tugas yang diberikan guru.</p>
+              </Link>
+              <Link href="/quiz" className="card" style={{ textDecoration: 'none' }}>
+                <h3 className="card-title">Quiz</h3>
+                <p className="card-desc">Uji pemahamanmu dengan quiz interaktif.</p>
+              </Link>
+              <Link href="/playground" className="card" style={{ textDecoration: 'none' }}>
+                <h3 className="card-title">Playground</h3>
+                <p className="card-desc">Coba coding HTML, CSS, dan JavaScript langsung.</p>
+              </Link>
+              <Link href="/portfolio" className="card" style={{ textDecoration: 'none' }}>
+                <h3 className="card-title">Portfolio</h3>
+                <p className="card-desc">Kelola karya dan project Informatikamu.</p>
+              </Link>
+              <Link href="/karya" className="card" style={{ textDecoration: 'none' }}>
+                <h3 className="card-title">Karya</h3>
+                <p className="card-desc">Lihat dan bagikan karyamu ke teman sekelas.</p>
+              </Link>
+            </div>
           </section>
 
-          <section className="dashboard-grid">
-            <div className="dashboard-left">
-              <div className="section-title-row"><div><span className="section-kicker">Performa</span><h2>Perkembangan belajar</h2></div><span className="small-pill">Data Supabase</span></div>
-              <div className="performance-card">
-                <div className="performance-head"><div><span>Rata-rata progress materi</span><strong>{loading ? '—' : average}</strong></div><span className="trend">{materials.length ? `${completed}/${materials.length}` : '—'} <small>materi selesai</small></span></div>
-                <div className="bar-chart">
-                  {subjectProgress.map((subject) => <div className="bar-item" key={subject.name}><div className="bar-track"><div className="bar-fill" style={{ height: `${Math.max(subject.value, 3)}%` }} /></div><strong>{subject.value}</strong><span>{subject.name}</span></div>)}
-                </div>
+          {/* Next Materials */}
+          <section className="section" style={{ paddingTop: 0 }}>
+            <div className="section-head">
+              <div>
+                <h2 className="section-title">Lanjut Belajar</h2>
+                <p className="section-subtitle">Materi yang belum kamu selesaikan.</p>
               </div>
-
-              <div className="section-title-row compact"><div><span className="section-kicker">Aktivitas</span><h2>Materi berikutnya</h2></div><Link href="/materi" className="see-all">Lihat semua →</Link></div>
-              <div className="task-card-list">
-                {nextMaterials.length ? nextMaterials.map((item) => (
-                  <Link href={item.slug ? `/materi/${item.slug}` : '/materi'} className="task-card" key={item.id}>
-                    <span className="task-dot task-blue">{item.title.slice(0, 2).toUpperCase()}</span>
-                    <span className="task-main"><strong>{item.title}</strong><small>{item.progress}% selesai</small></span>
-                    <span className="task-date"><strong>{item.progress}</strong><small>%</small></span>
-                    <span className="task-arrow">→</span>
+              <Link href="/materi" className="button button-ghost">
+                Semua materi →
+              </Link>
+            </div>
+            {loading ? (
+              <div className="card" style={{ padding: 32, textAlign: 'center' }}>
+                Memuat materi...
+              </div>
+            ) : nextMaterials.length === 0 ? (
+              <div className="card" style={{ padding: 32, textAlign: 'center' }}>
+                <h3 className="card-title">Semua materi sudah selesai!</h3>
+                <p className="card-desc">Kerja bagus! Lanjut eksplorasi materi lainnya.</p>
+              </div>
+            ) : (
+              <div className="grid grid-2">
+                {nextMaterials.map((m) => (
+                  <Link
+                    key={m.id}
+                    href={`/materi/${m.slug || m.id}`}
+                    className="card"
+                    style={{ textDecoration: 'none' }}
+                  >
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
+                      <h3 className="card-title">{m.title}</h3>
+                      <span className="tag">{m.progress}%</span>
+                    </div>
+                    <div style={{ width: '100%', height: 6, background: 'var(--surface-2)', borderRadius: 3, overflow: 'hidden' }}>
+                      <div style={{ width: `${m.progress}%`, height: '100%', background: 'var(--text)', borderRadius: 3 }} />
+                    </div>
                   </Link>
-                )) : <div style={{ padding: 18, border: '1px dashed rgba(148,163,184,.35)', borderRadius: 12, fontSize: 13 }}>Semua materi sudah selesai. 🎉</div>}
+                ))}
               </div>
-            </div>
-
-            <aside className="dashboard-right">
-              <div className="section-title-row"><div><span className="section-kicker">Progress</span><h2>Materi dikuasai</h2></div></div>
-              <div className="progress-card">
-                {(materials.length ? materials.slice(0, 6) : fallbackSubjects.map((item, index) => ({ id: String(index), slug: null, title: item.name, progress: item.value }))).map((subject) => <div className="progress-row" key={subject.id}><span className="progress-ring" style={{ '--progress': `${subject.progress * 3.6}deg` } as React.CSSProperties}><b>{subject.progress}%</b></span><span><strong>{subject.title}</strong><small>{subject.progress >= 80 ? 'Sangat baik' : subject.progress >= 50 ? 'Berjalan baik' : 'Perlu latihan'}</small></span></div>)}
-              </div>
-
-              <div className="section-title-row compact"><div><span className="section-kicker">Profil</span><h2>Data siswa</h2></div></div>
-              <div className="teacher-card"><span className="avatar teacher-avatar">{initials(displayName)}</span><span><strong>{displayName}</strong><small>Kelas {className} · {student?.role === 'siswa' ? 'Siswa' : 'Profil CHEXO'}</small></span></div>
-              <div className="teacher-card"><span className="avatar teacher-avatar alt">DB</span><span><strong>{loading ? 'Memuat data...' : `${materials.length || 0} materi tersedia`}</strong><small>{overallProgress}% progress keseluruhan</small></span></div>
-            </aside>
-          </section>
-
-          <section className="bottom-grid">
-            <div>
-              <div className="section-title-row compact"><div><span className="section-kicker">Jadwal</span><h2>Hari ini</h2></div><button className="small-pill" type="button">Lihat jadwal →</button></div>
-              <div className="schedule-card">
-                {schedule.map(item => <div className={`schedule-row ${item.active ? 'active' : ''}`} key={item.time}><span className="schedule-time">{item.time}</span><span className="schedule-line" /><span className="schedule-info"><strong>{item.title}</strong><small>{item.room}</small></span>{item.active && <span className="now-badge">Sekarang</span>}</div>)}
-              </div>
-            </div>
-            <div>
-              <div className="section-title-row compact"><div><span className="section-kicker">Mendatang</span><h2>Agenda</h2></div><span className="see-all">Lihat semua →</span></div>
-              <div className="event-list">{events.map(event => <div className="event-card" key={event.title}><span className="event-date"><b>{event.day}</b><small>{event.month}</small></span><span><strong>{event.title}</strong><small>{event.type} · CHEXO Informatika</small></span><span className="event-more">•••</span></div>)}</div>
-            </div>
+            )}
           </section>
         </div>
-      </section>
-    </main>
+      </Shell>
     </RoleGuard>
   );
 }

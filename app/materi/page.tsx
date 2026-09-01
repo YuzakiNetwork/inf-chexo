@@ -6,7 +6,24 @@ import { Shell } from '@/components/shell';
 import { fetchMaterials } from '@/lib/materials';
 import type { Material } from '@/lib/data';
 
-const assetLabels = { pdf: 'PDF', video: 'Video', link: 'Link', file: 'File' } as const;
+const assetLabels: Record<string, string> = {
+  pdf: 'PDF',
+  video: 'Video',
+  link: 'Link',
+  file: 'File',
+  embed: 'Embed',
+};
+
+function getAssetIcon(type: string) {
+  switch (type) {
+    case 'pdf': return '📄';
+    case 'video': return '▶';
+    case 'link': return '🔗';
+    case 'file': return '📁';
+    case 'embed': return '⊞';
+    default: return '•';
+  }
+}
 
 export default function MateriPage() {
   const [materials, setMaterials] = useState<Material[]>([]);
@@ -32,23 +49,104 @@ export default function MateriPage() {
     return text.includes(query.toLowerCase()) && (filter === 'Semua' || m.tag === filter);
   }), [materials, query, filter]);
 
-  return <Shell><div className="container">
-    <section className="page-head material-library-head">
-      <div><div className="eyebrow">Learning library</div><h1>Materi Informatika</h1><p>Materi CHEXO tersimpan di Supabase sehingga konten dapat diperbarui tanpa mengubah kode website.</p></div>
-      <div className="library-stat"><strong>{loading ? '—' : materials.length}</strong><span>{source === 'supabase' ? 'materi online' : 'materi demo'}</span></div>
-    </section>
-    <section className="material-toolbar card">
-      <label className="material-search"><span>⌕</span><input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Cari materi atau topik..." aria-label="Cari materi" /></label>
-      <div className="filter-row">{tags.map(tag => <button key={tag} type="button" className={filter === tag ? 'filter active' : 'filter'} onClick={() => setFilter(tag)}>{tag}</button>)}</div>
-    </section>
-    <section className="section">
-      {loading ? <div className="empty-state card"><strong>Memuat materi...</strong><span>Mengambil materi yang dipublikasikan dari Supabase.</span></div> : <div className="material-grid">{filtered.map((m, i) => <article className="material-card" key={m.id}>
-        <div className="material-card-top"><span className="tag">{String(i + 1).padStart(2, '0')} · {m.tag}</span><span className="material-duration">{m.duration}</span></div>
-        <h2>{m.title}</h2><p>{m.desc}</p>
-        <div className="material-assets">{m.assets.map(asset => <span className="asset-chip" key={asset.title}><b>{assetLabels[asset.type]}</b>{asset.title}</span>)}</div>
-        <Link href={`/materi/${m.id}`} className="material-open">Buka materi <span>→</span></Link>
-      </article>)}</div>}
-      {!loading && filtered.length === 0 && <div className="empty-state card"><strong>Materi tidak ditemukan</strong><span>Coba kata kunci atau kategori lain.</span></div>}
-    </section>
-  </div></Shell>;
+  return (
+    <Shell>
+      <div className="container">
+        <div className="page-head">
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: 16 }}>
+            <div>
+              <span className="tag" style={{ marginBottom: 12 }}>Learning Library</span>
+              <h1>Materi Informatika</h1>
+              <p>Materi tersimpan di Supabase dan dapat diperbarui tanpa mengubah kode.</p>
+            </div>
+            <div className="card" style={{ padding: '16px 20px', textAlign: 'center' }}>
+              <strong style={{ fontSize: 28, fontWeight: 700 }}>{loading ? '—' : materials.length}</strong>
+              <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>
+                {source === 'supabase' ? 'materi online' : 'materi demo'}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Toolbar */}
+        <div className="card" style={{ padding: 16, marginBottom: 24 }}>
+          <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'center' }}>
+            <div style={{ flex: 1, minWidth: 240, position: 'relative' }}>
+              <input
+                className="input"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Cari materi atau topik..."
+                style={{ paddingLeft: 36 }}
+              />
+              <span style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: 'var(--muted)' }}>⌕</span>
+            </div>
+            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+              {tags.map((tag) => (
+                <button
+                  key={tag}
+                  type="button"
+                  className="button button-sm"
+                  style={{
+                    background: filter === tag ? 'var(--text)' : 'transparent',
+                    color: filter === tag ? 'white' : 'var(--text-secondary)',
+                    borderColor: filter === tag ? 'var(--text)' : 'var(--line)',
+                  }}
+                  onClick={() => setFilter(tag)}
+                >
+                  {tag}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Materials Grid */}
+        {loading ? (
+          <div className="card" style={{ padding: 40, textAlign: 'center' }}>
+            Memuat materi...
+          </div>
+        ) : filtered.length === 0 ? (
+          <div className="card" style={{ padding: 40, textAlign: 'center' }}>
+            <h3 className="card-title">Materi tidak ditemukan</h3>
+            <p className="card-desc">Coba kata kunci atau kategori lain.</p>
+          </div>
+        ) : (
+          <div className="grid grid-2">
+            {filtered.map((m, i) => (
+              <article className="card" key={m.id}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+                  <span className="tag">
+                    {String(i + 1).padStart(2, '0')} · {m.tag}
+                  </span>
+                  <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{m.duration}</span>
+                </div>
+
+                <h3 className="card-title" style={{ fontSize: 18, marginBottom: 8 }}>{m.title}</h3>
+                <p className="card-desc" style={{ marginBottom: 16 }}>{m.desc}</p>
+
+                {m.assets.length > 0 && (
+                  <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 16 }}>
+                    {m.assets.map((asset) => (
+                      <span key={asset.title} className="tag" style={{ fontSize: 11 }}>
+                        {getAssetIcon(asset.type)} {assetLabels[asset.type] || asset.type}
+                      </span>
+                    ))}
+                  </div>
+                )}
+
+                <Link
+                  href={`/materi/${m.id}`}
+                  className="button button-sm"
+                  style={{ marginTop: 'auto' }}
+                >
+                  Buka materi →
+                </Link>
+              </article>
+            ))}
+          </div>
+        )}
+      </div>
+    </Shell>
+  );
 }
