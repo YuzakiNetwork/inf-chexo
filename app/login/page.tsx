@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Shell } from '@/components/shell';
 import { getSupabaseBrowserClient } from '@/lib/supabase';
 import { portalForRole, type UserRole } from '@/lib/portal';
@@ -29,6 +29,51 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [checkingAuth, setCheckingAuth] = useState(true);
+
+  // Check if user is already logged in - auto redirect to portal
+  useEffect(() => {
+    let mounted = true;
+
+    const checkSession = async () => {
+      const client = getSupabaseBrowserClient();
+      if (!client) {
+        if (mounted) setCheckingAuth(false);
+        return;
+      }
+
+      try {
+        const { data: authData } = await withTimeout(client.auth.getUser());
+        const user = authData?.user;
+
+        if (!user) {
+          if (mounted) setCheckingAuth(false);
+          return;
+        }
+
+        const profileResult = await withTimeout(
+          client.from('profiles').select('role').eq('id', user.id).maybeSingle()
+        ) as SupabaseResult<{ role: string | null } | null>;
+
+        const role = profileResult.data?.role as UserRole | null;
+        if (role) {
+          const portal = portalForRole(role);
+          if (portal !== '/login') {
+            window.location.replace(portal);
+            return;
+          }
+        }
+      } catch (err) {
+        console.error('[CHEXO] auth check error', err);
+      } finally {
+        if (mounted) setCheckingAuth(false);
+      }
+    };
+
+    checkSession();
+
+    return () => { mounted = false; };
+  }, []);
 
   const submit = async () => {
     if (loading) return;
@@ -80,6 +125,21 @@ export default function Login() {
     }
   };
 
+  // Show loading while checking existing session
+  if (checkingAuth) {
+    return (
+      <Shell>
+        <div className="container">
+          <div className="login-wrap">
+            <div className="login-card" style={{ textAlign: 'center' }}>
+              <p style={{ color: 'var(--text-secondary)' }}>Memeriksa sesi...</p>
+            </div>
+          </div>
+        </div>
+      </Shell>
+    );
+  }
+
   return (
     <Shell>
       <div className="container">
@@ -112,6 +172,7 @@ export default function Login() {
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="nama@sekolah.sch.id"
                   autoComplete="email"
+                  autoFocus
                 />
               </div>
               <div>

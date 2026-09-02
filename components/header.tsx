@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
+import { UserMenu } from './user-menu';
 
 export function Header() {
   return (
@@ -24,7 +25,7 @@ export function Header() {
         <Link href="/playground">Playground</Link>
         <Link href="/portfolio">Portfolio</Link>
       </nav>
-      <Link href="/login" className="button button-primary">Masuk</Link>
+      <UserMenu />
     </header>
   );
 }
