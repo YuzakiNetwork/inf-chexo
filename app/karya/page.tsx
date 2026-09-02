@@ -215,12 +215,12 @@ export default function KaryaPage() {
                   <strong style={{ color: 'var(--text)' }}>Tips upload karya:</strong>
                   <ul style={{ margin: '6px 0 0', paddingLeft: 20 }}>
                     <li><strong>File kecil (≤ 5 MB)</strong>: thumbnail, preview, screenshot — upload langsung di sini</li>
-                    <li><strong>File besar (> 5 MB)</strong>: project .apk, .zip, video demo — upload ke{' '}
+                    <li><strong>File besar ({'>'} 10 MB)</strong>: project .apk, .zip, video demo — upload ke{' '}
                       <a href="https://drive.google.com" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--primary)', fontWeight: 500 }}>
                         Google Drive
                       </a>{' '}atau{' '}
                       <a href="https://github.com" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--primary)', fontWeight: 500 }}>
-                        Github
+                        GitHub
                       </a>{' '}
                       (gratis), lalu paste link publik di kolom <strong>Link Project</strong>
                     </li>
@@ -353,7 +353,7 @@ export default function KaryaPage() {
                       placeholder="https://github.com/username/project atau Google Drive"
                     />
                     <small style={{ fontSize: 11, color: 'var(--muted)', marginTop: 4, display: 'block' }}>
-                      Untuk file besar (> 10 MB), upload ke Google Drive / github lalu paste link di sini
+                      Untuk file besar ({'>'} 10 MB), upload ke Google Drive / GitHub lalu paste link di sini
                     </small>
                   </div>
 
