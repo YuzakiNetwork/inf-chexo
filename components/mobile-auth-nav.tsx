@@ -11,9 +11,9 @@ export function MobileAuthNav() {
 
   useEffect(() => {
     let mounted = true;
-    if (!supabase) return;
 
     const load = async () => {
+      if (!supabase) return;
       const { data } = await supabase.auth.getUser();
       const user = data.user;
       if (!user) {
@@ -32,6 +32,7 @@ export function MobileAuthNav() {
     };
 
     load();
+    if (!supabase) return;
     const { data: { subscription } } = supabase.auth.onAuthStateChange(() => load());
     return () => { mounted = false; subscription.unsubscribe(); };
   }, []);
