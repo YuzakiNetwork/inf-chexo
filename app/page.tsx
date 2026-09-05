@@ -13,7 +13,7 @@ export default function Home() {
           <div className="hero-copy">
             <div className="eyebrow"><span className="icon" style={{fontSize:'15px'}}>bolt</span> Khusus mapel Informatika · Chexo</div>
             <h1>Ruang belajar <span className="accent">Informatika</span> anak Chexo.</h1>
-            <p>Chexo itu sebutan akrab buat SMAN 1 Cicalengka — dan ruang ini rumah digital khusus mapel Informatika: materi, tugas, kuis, tempat ngoding langsung, sampai galeri karya, semuanya di satu tempat.</p>
+            <p>Website ini adalah rumah digital khusus mapel Informatika: materi, tugas, kuis, tempat ngoding langsung, sampai galeri karya, semuanya di satu tempat.</p>
             <div className="hero-actions">
               <Link className="btn btn-filled" href="/materi"><span className="icon">explore</span>Mulai belajar</Link>
               <Link className="btn btn-tonal" href="/playground"><span className="icon">terminal</span>Coba Playground</Link>
