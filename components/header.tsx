@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { UserMenu } from './user-menu';
 import { MobileAuthNav } from './mobile-auth-nav';
+import { ThemeToggle } from './theme-toggle';
 
 export function Header() {
   return (
@@ -13,9 +14,12 @@ export function Header() {
           <Link href="/tugas"><span className="icon">assignment</span><span className="label">Tugas</span></Link>
           <Link href="/karya"><span className="icon">photo_library</span><span className="label">Karya</span></Link>
           <Link href="/playground"><span className="icon">terminal</span><span className="label">Playground</span></Link>
+          <ThemeToggle />
           <span style={{ marginLeft: 4 }}><UserMenu /></span>
         </nav>
       </div>
+
+      <div className="theme-fab-mobile"><ThemeToggle /></div>
 
       <nav className="bottom-nav">
         <Link className="active" href="/"><span className="icon">home</span>Beranda</Link>

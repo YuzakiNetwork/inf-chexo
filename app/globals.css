@@ -29,13 +29,16 @@
   --success: #386A20;
   --success-container: #B7F397;
 
+  --error-container: #FFDAD6;
+  --on-error-container: #BA1A1A;
+
   /* Aliases so every page's legacy variable names resolve to the M3 palette */
   --border: var(--outline-variant);
   --line: var(--outline-variant);
   --muted: var(--on-surface-variant);
   --text: var(--on-surface);
   --text-secondary: var(--on-surface-variant);
-  --danger: #BA1A1A;
+  --danger: var(--on-error-container);
   --radius: 12px;
   --radius-lg: 20px;
   --radius-sm: 8px;
@@ -111,16 +114,36 @@
   --m3-dense-gap: 8px;
 }
 
-.dark {
-  --m3-sys-color-primary: #A0C7FF;
-  --m3-sys-color-on-primary: #002B6B;
-  --m3-sys-color-primary-container: #004A9F;
-  --m3-sys-color-on-primary-container: #D7E3FF;
+html[data-theme="dark"] {
+  --primary: #FFB4A0;
+  --on-primary: #5F1600;
+  --primary-container: #8F3520;
+  --on-primary-container: #FFDBCF;
 
-  --m3-sys-color-surface: #121416;
-  --m3-sys-color-on-surface: #E3E3E3;
-  --m3-sys-color-surface-variant: #43474E;
-  --m3-sys-color-on-surface-variant: #C4C7CF;
+  --secondary: #A2C9FF;
+  --on-secondary: #00304C;
+  --secondary-container: #1D4867;
+  --on-secondary-container: #D3E4FF;
+
+  --tertiary: #DDC56F;
+  --on-tertiary: #3A2E00;
+  --tertiary-container: #54430D;
+  --on-tertiary-container: #FADF9C;
+
+  --surface: #17120F;
+  --surface-container-low: #201A17;
+  --surface-container: #241E1B;
+  --surface-container-high: #2F2825;
+  --on-surface: #EDE0DC;
+  --on-surface-variant: #D8C2BC;
+  --outline: #A08D88;
+  --outline-variant: #53433F;
+
+  --success: #9CD67D;
+  --success-container: #1F4B0C;
+
+  --error-container: #93000A;
+  --on-error-container: #FFB4AB;
 }
 
 @theme inline {
@@ -137,6 +160,7 @@ body {
   background: var(--surface);
   color: var(--on-surface);
   font-family: 'Roboto', ui-sans-serif, system-ui, sans-serif;
+  transition: background-color .2s ease, color .2s ease;
 }
 
 /* Container */
@@ -468,7 +492,7 @@ body {
   color: var(--on-surface-variant);
 }
 .status-success, .status-green { background: var(--success-container); color: var(--success); }
-.status-danger, .status-red { background: #FFDAD6; color: var(--danger); }
+.status-danger, .status-red { background: var(--error-container); color: var(--on-error-container); }
 
 .eyebrow {
   display: inline-flex;
@@ -547,6 +571,16 @@ body {
 }
 .nav a.active { background: var(--primary-container); color: var(--on-primary-container); }
 .nav .cta { background: var(--primary); color: var(--on-primary); margin-left: 4px; }
+
+.theme-toggle {
+  width: 40px; height: 40px; border-radius: 50%; border: none; cursor: pointer;
+  background: var(--surface-container-high); color: var(--on-surface-variant);
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.theme-fab-mobile { display: none; position: fixed; top: 14px; right: 14px; z-index: 25; }
+.theme-fab-mobile .theme-toggle { box-shadow: 0 2px 10px rgba(58,13,2,0.15); }
+@media (max-width: 820px) { .theme-fab-mobile { display: flex; } }
+
 @media (max-width: 820px) { .navwrap { display: none; } }
 
 /* Bottom nav — mobile only, replaces the floating top pill so the header
