@@ -130,6 +130,8 @@ export default function KaryaPage() {
       description: description.trim() || null,
       project_url: url.trim() || null,
       content: path,
+      type: 'Lainnya',
+      published: true,
     }).select('*').single();
 
     if (e) {

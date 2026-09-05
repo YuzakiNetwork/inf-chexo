@@ -1,5 +1,22 @@
 # CHEXO Karya (Portfolio) - Setup Guide
 
+## ⚠️ Penting: Jalankan Migration Dulu!
+
+Sebelum pakai fitur karya, **wajib jalankan migration SQL** untuk menambahkan kolom yang dibutuhkan.
+
+Lihat file: `supabase/karya-migration.sql`
+
+Jalankan di **Supabase SQL Editor** untuk menambahkan kolom:
+- `content` (path file di Storage)
+- `project_url` (link eksternal)
+- `image_url` (URL thumbnail)
+- `published`, `reviewed`, `teacher_feedback`
+- `tech`, `type`, `updated_at`
+
+Plus storage bucket `task-submissions` dan RLS policies.
+
+---
+
 ## Pertimbangan Database
 
 **Q: Kenapa tidak pakai Google Drive saja?**
