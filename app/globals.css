@@ -28,6 +28,19 @@
   --success: #386A20;
   --success-container: #B7F397;
 
+  /* Aliases so every page's legacy variable names resolve to the M3 palette */
+  --border: var(--outline-variant);
+  --line: var(--outline-variant);
+  --muted: var(--on-surface-variant);
+  --text: var(--on-surface);
+  --text-secondary: var(--on-surface-variant);
+  --danger: #BA1A1A;
+  --radius: 12px;
+  --radius-lg: 20px;
+  --radius-sm: 8px;
+  --surface-2: var(--surface-container);
+  --m3-radius-full: 9999px;
+
   /* Map legacy tokens to new palette */
   --m3-sys-color-primary: var(--primary);
   --m3-sys-color-on-primary: var(--on-primary);
@@ -373,107 +386,131 @@ body {
 .bg-surface { background: var(--m3-sys-color-surface); }
 .bg-variant { background: var(--m3-sys-color-surface-variant); }
 
-/* Legacy class mapping for compatibility */
+/* ---- Shared components (drives every inner page: materi, tugas, quiz,
+   playground, karya, login, admin, guru, siswa) — all tokenized to the
+   same M3 palette as the homepage, so the whole site now matches. ---- */
 .shell { position: relative; }
 
-.button {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.5rem 1rem;
-  border-radius: 9999px;
-  font-size: 0.875rem;
-  font-weight: 600;
-  background: #003DA5;
-  color: white;
-  text-decoration: none;
-  border: none;
-  cursor: pointer;
-}
-
-.button-primary {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.5rem 1rem;
-  border-radius: 9999px;
-  font-size: 0.875rem;
-  font-weight: 600;
-  background: #003DA5;
-  color: white;
-  text-decoration: none;
-  border: none;
-  cursor: pointer;
-}
-
-.button-sm {
+.button, .button-primary {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.375rem 0.75rem;
+  padding: 10px 22px;
   border-radius: 9999px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  background: #003DA5;
-  color: white;
+  font-size: 14px;
+  font-weight: 500;
+  background: var(--primary);
+  color: var(--on-primary);
   text-decoration: none;
   border: none;
   cursor: pointer;
+  transition: filter .15s;
 }
+.button:hover, .button-primary:hover { filter: brightness(0.94); }
+
+.button-sm { padding: 6px 14px; font-size: 12px; }
+.button-dark { background: var(--on-surface); color: var(--surface); }
+.button-yellow { background: var(--tertiary-container); color: var(--on-tertiary-container); }
+.button-ghost { background: transparent; color: var(--on-surface-variant); border: 1px solid var(--outline); }
 
 .card {
-  background: var(--m3-sys-color-surface);
-  border: 1px solid var(--m3-sys-color-outline-variant);
+  background: var(--surface);
+  border: 1px solid var(--outline-variant);
   border-radius: 16px;
-  padding: 24px;
-  box-shadow: 0px 1px 2px rgba(0,0,0,0.3), 0px 1px 3px 1px rgba(0,0,0,0.15);
+  padding: 22px;
+  box-shadow: 0px 1px 2px rgba(0,0,0,0.07), 0px 1px 4px rgba(0,0,0,0.05);
 }
 
-.card-title {
-  font: var(--m3-title-large);
-  font-weight: 700;
-  margin-bottom: 8px;
-}
+.card-title { font-size: 18px; font-weight: 600; margin: 0 0 8px; }
+.card-desc, .muted { color: var(--on-surface-variant); }
+.card-desc { font-size: 14px; line-height: 1.5; margin: 0; }
 
-.card-desc {
-  font: var(--m3-body-medium);
-  color: var(--m3-sys-color-on-surface-variant);
-  line-height: 1.5;
-}
-
-.input {
+.input, .form .input {
   width: 100%;
-  padding: 0.75rem;
-  border: 1px solid #79747E;
-  border-radius: 0.5rem;
+  padding: 12px 14px;
+  border: 1px solid var(--outline);
+  border-radius: 8px;
+  font-size: 14px;
+  background: var(--surface);
+  color: var(--on-surface);
+  transition: border-color .15s, box-shadow .15s;
+}
+.input:focus, .form .input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px var(--primary-container);
 }
 
-.form .input {
-  width: 100%;
-  padding: 0.75rem;
-  border: 1px solid #79747E;
-  border-radius: 0.5rem;
-}
+.form { display: flex; flex-direction: column; gap: 14px; }
+.form label { font-size: 13px; font-weight: 500; color: var(--on-surface-variant); }
 
 .tag {
   display: inline-flex;
   align-items: center;
-  padding: 0.25rem 0.75rem;
+  padding: 4px 12px;
   border-radius: 9999px;
-  font-size: 0.75rem;
-  background: #E7E0EC;
-  color: #44474F;
+  font-size: 12px;
+  font-weight: 500;
+  background: var(--secondary-container);
+  color: var(--on-secondary-container);
 }
 
-.status-success {
+.status, .status-success, .status-green,
+.status-danger, .status-red {
   display: inline-flex;
   align-items: center;
-  padding: 0.25rem 0.75rem;
+  padding: 4px 12px;
   border-radius: 9999px;
-  font-size: 0.75rem;
-  background: #D9F7E8;
-  color: #0A7A3C;
+  font-size: 12px;
+  font-weight: 500;
+  background: var(--surface-container-high);
+  color: var(--on-surface-variant);
 }
+.status-success, .status-green { background: var(--success-container); color: var(--success); }
+.status-danger, .status-red { background: #FFDAD6; color: var(--danger); }
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border-radius: 9999px;
+  background: var(--primary-container);
+  color: var(--on-primary-container);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: .02em;
+  text-transform: uppercase;
+  margin-bottom: 14px;
+}
+
+.page-head { padding: 40px 0 22px; max-width: 70ch; }
+.page-head h1 { font-size: 32px; font-weight: 500; margin: 0 0 10px; font-family: 'Roboto Flex', 'Roboto', sans-serif; }
+.page-head p { color: var(--on-surface-variant); font-size: 15px; line-height: 1.5; margin: 0; }
+
+.section { padding: 20px 0 32px; }
+.section-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; margin-bottom: 20px; flex-wrap: wrap; }
+.section-subtitle { color: var(--on-surface-variant); font-size: 14px; margin: 2px 0 0; }
+
+.grid-3 { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
+
+.toolbar { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
+
+.login-wrap { min-height: 60vh; display: flex; align-items: center; justify-content: center; padding: 40px 20px; }
+.login-card {
+  background: var(--surface);
+  border: 1px solid var(--outline-variant);
+  border-radius: 24px;
+  padding: 36px;
+  box-shadow: 0 1px 3px rgba(0,0,0,.08);
+  width: min(420px, 100%);
+}
+
+.task { display: flex; flex-direction: column; gap: 10px; }
+
+.stats { display: flex; gap: 16px; flex-wrap: wrap; }
+.stat { background: var(--surface-container); border-radius: 16px; padding: 16px 20px; min-width: 140px; }
+.stat-value { font-size: 26px; font-weight: 700; font-family: 'Roboto Flex', 'Roboto', sans-serif; color: var(--primary); }
+.stat-label { font-size: 12px; color: var(--on-surface-variant); }
 
 /* ---- M3 Remodel Styles ---- */
 .appbar{
