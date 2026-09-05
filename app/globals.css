@@ -488,12 +488,12 @@ body {
 .page-head h1 { font-size: 32px; font-weight: 500; margin: 0 0 10px; font-family: 'Roboto Flex', 'Roboto', sans-serif; }
 .page-head p { color: var(--on-surface-variant); font-size: 15px; line-height: 1.5; margin: 0; }
 
-.section { padding: 20px 0 32px; }
+.section { padding: 20px 24px 32px; max-width: 1080px; margin: 0 auto; }
 .section-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; margin-bottom: 20px; flex-wrap: wrap; }
 .section-head h2 { font-family: 'Roboto Flex', 'Roboto', sans-serif; font-weight: 800; font-size: 28px; margin: 0 0 6px; }
 .section-head a { color: var(--primary); font-weight: 700; font-size: 13px; text-decoration: none; }
 .section-subtitle { color: var(--on-surface-variant); font-size: 14px; margin: 2px 0 0; }
-.section-tinted { background: var(--surface-container-low); margin: 0 -32px; padding: 44px 32px; }
+.section-tinted { background: var(--surface-container-low); border-radius: 28px; padding: 40px 28px; }
 
 .grid-3 { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
 
@@ -578,7 +578,7 @@ body {
 .blob {
   position: relative; width: 260px; height: 260px; flex-shrink: 0;
   background: var(--primary-container);
-  clip-path: path('M228,26C260,54,270,110,262,160C254,210,228,254,182,270C136,286,70,274,36,238C2,202,-10,142,10,92C30,42,74,2,126,2C166,2,196,-2,228,26Z');
+  border-radius: 42% 58% 66% 34% / 45% 40% 60% 55%;
 }
 .blob img.crest {
   position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
@@ -671,5 +671,4 @@ footer {
   .m-grid { grid-template-columns: 1fr; }
   .task-row { flex-wrap: wrap; }
   .task-right { text-align: left; }
-  .section-tinted { margin: 0 -16px; padding: 32px 16px; }
 }

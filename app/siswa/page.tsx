@@ -177,17 +177,9 @@ export default function SiswaDashboard() {
                 <h3 className="card-title">Tugas</h3>
                 <p className="card-desc">Lihat dan kerjakan tugas yang diberikan guru.</p>
               </Link>
-              <Link href="/quiz" className="card" style={{ textDecoration: 'none' }}>
-                <h3 className="card-title">Quiz</h3>
-                <p className="card-desc">Uji pemahamanmu dengan quiz interaktif.</p>
-              </Link>
               <Link href="/playground" className="card" style={{ textDecoration: 'none' }}>
                 <h3 className="card-title">Playground</h3>
                 <p className="card-desc">Coba coding HTML, CSS, dan JavaScript langsung.</p>
-              </Link>
-              <Link href="/portfolio" className="card" style={{ textDecoration: 'none' }}>
-                <h3 className="card-title">Portfolio</h3>
-                <p className="card-desc">Kelola karya dan project Informatikamu.</p>
               </Link>
               <Link href="/karya" className="card" style={{ textDecoration: 'none' }}>
                 <h3 className="card-title">Karya</h3>
