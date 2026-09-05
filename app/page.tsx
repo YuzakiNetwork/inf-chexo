@@ -1,129 +1,73 @@
 import Link from 'next/link';
-import Image from 'next/image';
-import { Shell } from '@/components/shell';
 import { materials, tasks } from '@/lib/data';
 
 export default function Home() {
   return (
-    <Shell>
-      <div className="container">
-        <section className="hero">
-          <div>
-            <div className="hero-eyebrow">Platform Pembelajaran Informatika</div>
-            <h1>Belajar informatika dengan cara yang simpel.</h1>
-            <p>
-              Materi, tugas, quiz, coding playground, dan portofolio dalam satu
-              tempat. Dirancang untuk siswa SMAN 1 Cicalengka.
-            </p>
+    <>
+      <div className="hero-wrap">
+        <div className="hero-card">
+          <img className="crest" src="/chexo-emblem-logo.webp" alt="Chexo Crest" />
+          <div className="hero-text">
+            <div className="eyebrow-chip">Ekosistem digital kelas Informatika</div>
+            <h1>Semua yang kamu butuhkan buat kelas Informatika, ngumpul di satu layar.</h1>
+            <p>Catat progres belajar, kerjakan tugas, latihan lewat kuis, coba kode langsung di playground, sampai pajang hasil karya — tanpa pindah-pindah aplikasi.</p>
             <div className="hero-actions">
-              <Link className="button button-primary" href="/login">
-                Masuk ke Portal
-              </Link>
-              <Link className="button" href="/materi">
-                Jelajahi Materi
-              </Link>
+              <Link className="btn-tonal" href="/materi">Lihat jalur belajar</Link>
+              <Link className="btn-filled" href="/login" style={{background:'var(--on-primary-container)', color:'var(--primary-container)'}}>Buka portal saya <span className="icon">arrow_forward</span></Link>
             </div>
           </div>
-          <div className="hero-visual">
-            <Image
-              src="/chexo.webp"
-              alt="Logo SMAN 1 Cicalengka"
-              width={280}
-              height={280}
-              className="hero-logo"
-              priority
-            />
-          </div>
-        </section>
-
-        <section className="section">
-          <div className="stats">
-            <div className="stat">
-              <span className="stat-value">8</span>
-              <span className="stat-label">Elemen Informatika</span>
-            </div>
-            <div className="stat">
-              <span className="stat-value">3</span>
-              <span className="stat-label">Tugas Aktif</span>
-            </div>
-            <div className="stat">
-              <span className="stat-value">2</span>
-              <span className="stat-label">Mode Coding</span>
-            </div>
-            <div className="stat">
-              <span className="stat-value">1</span>
-              <span className="stat-label">Ekosistem Belajar</span>
-            </div>
-          </div>
-        </section>
-
-        <section className="section">
-          <div className="section-head">
-            <div>
-              <h2 className="section-title">Materi Pembelajaran</h2>
-              <p className="section-subtitle">Mulai dari konsep dasar hingga praktik coding.</p>
-            </div>
-            <Link href="/materi" className="button button-ghost">
-              Lihat semua →
-            </Link>
-          </div>
-          <div className="grid grid-3">
-            {materials.slice(0, 6).map((m, i) => (
-              <Link
-                key={m.id}
-                href={`/materi#${m.id}`}
-                className="card"
-                style={{ textDecoration: 'none' }}
-              >
-                <span className="tag" style={{ marginBottom: 12 }}>
-                  0{i + 1} · {m.tag}
-                </span>
-                <h3 className="card-title">{m.title}</h3>
-                <p className="card-desc">{m.desc}</p>
-              </Link>
-            ))}
-          </div>
-        </section>
-
-        <section className="section">
-          <div className="section-head">
-            <div>
-              <h2 className="section-title">Tugas Terbaru</h2>
-              <p className="section-subtitle">Tugas yang perlu kamu selesaikan.</p>
-            </div>
-            <Link href="/tugas" className="button button-ghost">
-              Buka tugas →
-            </Link>
-          </div>
-          <div className="grid">
-            {tasks.map((t) => (
-              <div className="card task" key={t.id}>
-                <div>
-                  <span className="tag" style={{ marginBottom: 8 }}>
-                    {t.subject} · {t.className}
-                  </span>
-                  <h3 className="card-title">{t.title}</h3>
-                  <p className="card-desc">{t.description}</p>
-                  <span
-                    className={`status ${
-                      t.status === 'Sudah dinilai' ? 'status-success' : 'status-warning'
-                    }`}
-                    style={{ marginTop: 12 }}
-                  >
-                    {t.status}
-                  </span>
-                </div>
-                <span className="deadline">
-                  {new Date(t.deadline).toLocaleDateString('id-ID', {
-                    day: '2-digit',
-                    month: 'short',
-                  })}
-                </span>
-              </div>
-            ))}
-          </div>
-        </section>
+        </div>
       </div>
-    </Shell>
+
+      <div className="chip-row">
+        <div className="stat-chip"><div className="num-badge">8</div><span>Elemen inti Informatika</span></div>
+        <div className="stat-chip"><div className="num-badge">3</div><span>Kegiatan menanti dikerjakan</span></div>
+        <div className="stat-chip"><div className="num-badge">2</div><span>Cara latihan coding</span></div>
+        <div className="stat-chip"><div className="num-badge">1</div><span>Ruang belajar terpadu</span></div>
+      </div>
+
+      <section>
+        <h2 className="section-title">Jalur Belajar</h2>
+        <p className="section-sub">Enam modul, dari konsep dasar sampai praktik langsung.</p>
+        <div className="card-grid">
+          {materials.slice(0,6).map((m: any, i: number) => {
+            const badges = ['badge-a','badge-b','badge-c'];
+            return (
+              <div key={m.id} className="m-card">
+                <div className={`badge-circle ${badges[i%3]}`}>
+                  <span className="icon">lightbulb</span>
+                </div>
+                <h3>{m.title}</h3>
+                <p>{m.desc}</p>
+                <Link className="card-link" href={`/materi#${m.id}`}>Buka modul <span className="icon" style={{fontSize:'16px'}}>arrow_forward</span></Link>
+              </div>
+            )
+          })}
+        </div>
+      </section>
+
+      <section>
+        <h2 className="section-title">Yang Perlu Dikerjakan</h2>
+        <p className="section-sub">Daftar kegiatan kelas yang sedang berjalan.</p>
+        <div style={{background:'var(--surface)', borderRadius:'20px', overflow:'hidden', boxShadow:'0 1px 2px rgba(0,0,0,0.08)'}}>
+          {tasks.slice(0,3).map((t: any) => (
+            <div key={t.id} style={{display:'flex', alignItems:'flex-start', gap:'16px', padding:'18px 22px', borderBottom:'1px solid var(--outline-variant)'}}>
+              <div style={{width:'40px', height:'40px', borderRadius:'50%', display:'flex', alignItems:'center', justifyContent:'center', background:'var(--surface-container-high)', color:'var(--on-surface-variant)'}}><span className="icon">schedule</span></div>
+              <div style={{flex:1}}>
+                <div style={{fontSize:'12px', color:'var(--on-surface-variant)', marginBottom:'2px'}}>TUGAS · XI-1</div>
+                <h3 style={{fontSize:'15px', fontWeight:'500', margin:'0 0 4px'}}>{t.title}</h3>
+                <p style={{fontSize:'13px', color:'var(--on-surface-variant)', margin:'0'}}>{t.desc}</p>
+              </div>
+              <div style={{display:'flex', flexDirection:'column', alignItems:'flex-end', gap:'6px'}}>
+                <span style={{fontSize:'11px', fontWeight:'500', padding:'5px 12px', borderRadius:'100px', background:'var(--tertiary-container)', color:'var(--on-tertiary-container)'}}>Belum dikerjakan</span>
+                <span style={{fontSize:'12px', color:'var(--on-surface-variant)'}}>Tenggat {new Date(t.due).toLocaleDateString('id-ID', {day:'2-digit', month:'short'})}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <Link className="fab" href="/playground"><span className="icon">terminal</span>Coba Playground</Link>
+    </>
   );
 }

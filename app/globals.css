@@ -1,51 +1,78 @@
 @import "tailwindcss";
 
 :root {
-  /* Material Design 3 Tokens - Light Theme */
-  --m3-sys-color-primary: #003DA5;
-  --m3-sys-color-on-primary: #FFFFFF;
-  --m3-sys-color-primary-container: #D7E3FF;
-  --m3-sys-color-on-primary-container: #001A41;
+  /* M3-style tonal palette derived from school crest */
+  --primary: #9B4A3A;
+  --on-primary: #FFFFFF;
+  --primary-container: #FFDAD1;
+  --on-primary-container: #3A0A00;
 
-  --m3-sys-color-secondary: #4A4A4A;
-  --m3-sys-color-on-secondary: #FFFFFF;
-  --m3-sys-color-secondary-container: #E0E0E0;
-  --m3-sys-color-on-secondary-container: #1A1A1A;
+  --secondary: #3B607F;
+  --on-secondary: #FFFFFF;
+  --secondary-container: #CDE5FF;
+  --on-secondary-container: #001D33;
 
-  --m3-sys-color-tertiary: #6A2C72;
-  --m3-sys-color-on-tertiary: #FFFFFF;
+  --tertiary: #6E5C1E;
+  --on-tertiary: #FFFFFF;
+  --tertiary-container: #FADF9C;
+  --on-tertiary-container: #221B00;
 
-  --m3-sys-color-surface: #FFFBFF;
-  --m3-sys-color-on-surface: #1A1C1E;
-  --m3-sys-color-surface-variant: #E7E0EC;
-  --m3-sys-color-on-surface-variant: #44474F;
+  --surface: #FFF8F6;
+  --surface-container: #FCEAE4;
+  --surface-container-high: #F7E2DB;
+  --on-surface: #231917;
+  --on-surface-variant: #53433F;
+  --outline: #85736E;
+  --outline-variant: #D8C2BC;
 
-  --m3-sys-color-outline: #79747E;
-  --m3-sys-color-outline-variant: #CAC4D0;
+  --success: #386A20;
+  --success-container: #B7F397;
+
+  /* Map legacy tokens to new palette */
+  --m3-sys-color-primary: var(--primary);
+  --m3-sys-color-on-primary: var(--on-primary);
+  --m3-sys-color-primary-container: var(--primary-container);
+  --m3-sys-color-on-primary-container: var(--on-primary-container);
+
+  --m3-sys-color-secondary: var(--secondary);
+  --m3-sys-color-on-secondary: var(--on-secondary);
+  --m3-sys-color-secondary-container: var(--secondary-container);
+  --m3-sys-color-on-secondary-container: var(--on-secondary-container);
+
+  --m3-sys-color-tertiary: var(--tertiary);
+  --m3-sys-color-on-tertiary: var(--on-tertiary);
+
+  --m3-sys-color-surface: var(--surface);
+  --m3-sys-color-on-surface: var(--on-surface);
+  --m3-sys-color-surface-variant: var(--surface-container);
+  --m3-sys-color-on-surface-variant: var(--on-surface-variant);
+
+  --m3-sys-color-outline: var(--outline);
+  --m3-sys-color-outline-variant: var(--outline-variant);
 
   --m3-sys-color-error: #BA1A1A;
   --m3-sys-color-on-error: #FFFFFF;
 
-  /* Typography Scale M3 */
-  --m3-display-large: 57px/64px 'Plus Jakarta Sans', sans-serif;
-  --m3-display-medium: 45px/52px 'Plus Jakarta Sans', sans-serif;
-  --m3-display-small: 36px/44px 'Plus Jakarta Sans', sans-serif;
+  /* Typography Scale M3 - Roboto */
+  --m3-display-large: 57px/64px 'Roboto Flex', 'Roboto', sans-serif;
+  --m3-display-medium: 45px/52px 'Roboto Flex', 'Roboto', sans-serif;
+  --m3-display-small: 36px/44px 'Roboto Flex', 'Roboto', sans-serif;
 
-  --m3-headline-large: 32px/40px 'Plus Jakarta Sans', sans-serif;
-  --m3-headline-medium: 28px/36px 'Plus Jakarta Sans', sans-serif;
-  --m3-headline-small: 24px/32px 'Plus Jakarta Sans', sans-serif;
+  --m3-headline-large: 32px/40px 'Roboto Flex', 'Roboto', sans-serif;
+  --m3-headline-medium: 28px/36px 'Roboto Flex', 'Roboto', sans-serif;
+  --m3-headline-small: 24px/32px 'Roboto Flex', 'Roboto', sans-serif;
 
-  --m3-title-large: 22px/28px 'Plus Jakarta Sans', sans-serif;
-  --m3-title-medium: 16px/24px 'Plus Jakarta Sans', sans-serif;
-  --m3-title-small: 14px/20px 'Plus Jakarta Sans', sans-serif;
+  --m3-title-large: 22px/28px 'Roboto Flex', 'Roboto', sans-serif;
+  --m3-title-medium: 16px/24px 'Roboto Flex', 'Roboto', sans-serif;
+  --m3-title-small: 14px/20px 'Roboto Flex', 'Roboto', sans-serif;
 
-  --m3-body-large: 16px/24px 'Plus Jakarta Sans', sans-serif;
-  --m3-body-medium: 14px/20px 'Plus Jakarta Sans', sans-serif;
-  --m3-body-small: 12px/16px 'Plus Jakarta Sans', sans-serif;
+  --m3-body-large: 16px/24px 'Roboto Flex', 'Roboto', sans-serif;
+  --m3-body-medium: 14px/20px 'Roboto Flex', 'Roboto', sans-serif;
+  --m3-body-small: 12px/16px 'Roboto Flex', 'Roboto', sans-serif;
 
-  --m3-label-large: 14px/20px 'Plus Jakarta Sans', sans-serif;
-  --m3-label-medium: 12px/16px 'Plus Jakarta Sans', sans-serif;
-  --m3-label-small: 11px/16px 'Plus Jakarta Sans', sans-serif;
+  --m3-label-large: 14px/20px 'Roboto Flex', 'Roboto', sans-serif;
+  --m3-label-medium: 12px/16px 'Roboto Flex', 'Roboto', sans-serif;
+  --m3-label-small: 11px/16px 'Roboto Flex', 'Roboto', sans-serif;
 
   /* Spacing */
   --m3-space-xs: 4px;
@@ -93,10 +120,9 @@ html {
 }
 
 body {
-  background: var(--m3-sys-color-surface);
-  color: var(--m3-sys-color-on-surface);
-  font: var(--m3-body-large);
-  font-family: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
+  background: var(--surface);
+  color: var(--on-surface);
+  font-family: 'Roboto', ui-sans-serif, system-ui, sans-serif;
 }
 
 /* Container */
@@ -447,4 +473,114 @@ body {
   font-size: 0.75rem;
   background: #D9F7E8;
   color: #0A7A3C;
+}
+
+/* ---- M3 Remodel Styles ---- */
+.appbar{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:10px 32px; background:var(--surface);
+  position:sticky; top:0; z-index:10;
+}
+.appbar-left{display:flex; align-items:center; gap:12px;}
+.appbar-left img{width:38px; height:38px; object-fit:contain;}
+.appbar-title{font-size:20px; font-weight:500;}
+.appbar-nav{display:flex; gap:4px;}
+.nav-pill{
+  padding:9px 18px; border-radius:100px; color:var(--on-surface-variant);
+  font-size:14px; font-weight:500; text-decoration:none; transition:background .15s;
+}
+.nav-pill:hover{background:var(--surface-container-high);}
+.btn-filled{
+  background:var(--primary); color:var(--on-primary); border:none;
+  padding:10px 24px; border-radius:100px; font-size:14px; font-weight:500;
+  text-decoration:none; display:inline-flex; align-items:center; gap:8px; cursor:pointer;
+}
+.icon{font-family:'Material Icons Round'; font-size:20px; line-height:1; vertical-align:middle;}
+
+/* ---- Hero ---- */
+.hero-wrap{ padding:24px 32px 8px; }
+.hero-card{
+  background:var(--primary-container); color:var(--on-primary-container);
+  border-radius:28px; padding:56px 48px; display:flex; align-items:center;
+  gap:48px; overflow:hidden; position:relative;
+}
+.hero-card img.crest{
+  width:220px; height:220px; object-fit:contain; flex-shrink:0;
+  filter:drop-shadow(0 8px 20px rgba(0,0,0,0.15));
+}
+.hero-text{max-width:60ch;}
+.eyebrow-chip{
+  display:inline-flex; align-items:center; gap:6px;
+  background:rgba(255,255,255,0.5); padding:6px 14px; border-radius:100px;
+  font-size:12px; font-weight:500; margin-bottom:18px;
+}
+.hero-text h1{
+  font-size:40px; line-height:1.18; font-weight:400; margin:0 0 16px;
+  font-family:'Roboto Flex'; letter-spacing:-0.5px;
+}
+.hero-text p{font-size:16px; line-height:1.5; margin:0 0 28px; max-width:52ch; opacity:0.9;}
+.hero-actions{display:flex; gap:12px; flex-wrap:wrap;}
+.btn-tonal{
+  background:rgba(255,255,255,0.65); color:var(--on-primary-container);
+  padding:10px 24px; border-radius:100px; font-size:14px; font-weight:500;
+  text-decoration:none; display:inline-flex; align-items:center; gap:8px;
+}
+
+.chip-row{display:flex; gap:10px; flex-wrap:wrap; padding:28px 32px 8px;}
+.stat-chip{
+  display:flex; align-items:center; gap:10px;
+  background:var(--surface); border:1px solid var(--outline-variant);
+  border-radius:100px; padding:8px 18px 8px 8px;
+}
+.stat-chip .num-badge{
+  width:32px; height:32px; border-radius:50%; background:var(--secondary-container);
+  color:var(--on-secondary-container); display:flex; align-items:center; justify-content:center;
+  font-weight:700; font-size:14px;
+}
+.stat-chip span{font-size:13px; color:var(--on-surface-variant);}
+
+section{padding:44px 32px;}
+.section-title{font-size:24px; font-weight:400; margin:0 0 4px; font-family:'Roboto Flex';}
+.section-sub{font-size:14px; color:var(--on-surface-variant); margin:0 0 28px;}
+
+.card-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:16px;}
+.m-card{
+  background:var(--surface); border-radius:16px; padding:20px;
+  box-shadow:0 1px 2px rgba(0,0,0,0.08), 0 1px 4px rgba(0,0,0,0.06);
+  display:flex; flex-direction:column; gap:12px;
+}
+.badge-circle{
+  width:40px; height:40px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:20px;
+}
+.badge-a{background:var(--primary-container); color:var(--on-primary-container);}
+.badge-b{background:var(--secondary-container); color:var(--on-secondary-container);}
+.badge-c{background:var(--tertiary-container); color:var(--on-tertiary-container);}
+.m-card h3{font-size:16px; font-weight:500; margin:0;}
+.m-card p{font-size:13px; color:var(--on-surface-variant); margin:0; line-height:1.5;}
+.card-link{
+  margin-top:auto; font-size:13px; font-weight:500; color:var(--primary);
+  display:flex; align-items:center; gap:4px; text-decoration:none;
+}
+
+.fab{
+  position:fixed; bottom:28px; right:28px;
+  background:var(--secondary-container); color:var(--on-secondary-container);
+  border-radius:20px; padding:16px 22px; display:flex; align-items:center; gap:10px;
+  box-shadow:0 4px 12px rgba(0,0,0,0.18); text-decoration:none;
+  font-size:14px; font-weight:500;
+}
+
+footer{
+  padding:32px; text-align:center; font-size:12px; color:var(--on-surface-variant);
+  border-top:1px solid var(--outline-variant); margin-top:20px;
+}
+
+@media (max-width: 900px){
+  .card-grid{grid-template-columns:1fr 1fr;}
+  .hero-card{flex-direction:column; text-align:center; padding:36px 24px;}
+  .hero-card img.crest{width:140px; height:140px;}
+  .hero-actions{justify-content:center;}
+}
+@media (max-width: 600px){
+  .card-grid{grid-template-columns:1fr;}
 }
