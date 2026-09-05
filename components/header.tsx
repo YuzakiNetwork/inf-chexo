@@ -7,7 +7,7 @@ export function Header() {
     <header className="appbar">
       <div className="appbar-left">
         <Link href="/">
-          <img src="/chexo-emblem-logo.webp" alt="CHEXO" />
+          <img src="/chexo.webp" alt="CHEXO" />
         </Link>
         <span className="appbar-title">Chexo</span>
       </div>

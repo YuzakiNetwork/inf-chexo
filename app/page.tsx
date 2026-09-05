@@ -1,12 +1,13 @@
 import Link from 'next/link';
 import { materials, tasks } from '@/lib/data';
+import { Shell } from '@/components/shell';
 
 export default function Home() {
   return (
-    <>
+    <Shell>
       <div className="hero-wrap">
         <div className="hero-card">
-          <img className="crest" src="/chexo-emblem-logo.webp" alt="Chexo Crest" />
+          <img className="crest" src="/chexo.webp" alt="Chexo Crest" />
           <div className="hero-text">
             <div className="eyebrow-chip">Ekosistem digital kelas Informatika</div>
             <h1>Semua yang kamu butuhkan buat kelas Informatika, ngumpul di satu layar.</h1>
@@ -68,6 +69,6 @@ export default function Home() {
       </section>
 
       <Link className="fab" href="/playground"><span className="icon">terminal</span>Coba Playground</Link>
-    </>
+    </Shell>
   );
 }
