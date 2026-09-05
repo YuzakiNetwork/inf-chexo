@@ -5,37 +5,41 @@ import { Shell } from '@/components/shell';
 export default function Home() {
   return (
     <Shell>
-      <div className="hero-wrap">
-        <div className="hero-card">
-          <img className="crest" src="/chexo.webp" alt="Chexo Crest" />
-          <div className="hero-text">
-            <div className="eyebrow-chip">Ekosistem digital kelas Informatika</div>
-            <h1>Semua yang kamu butuhkan buat kelas Informatika, ngumpul di satu layar.</h1>
-            <p>Catat progres belajar, kerjakan tugas, latihan lewat kuis, coba kode langsung di playground, sampai pajang hasil karya — tanpa pindah-pindah aplikasi.</p>
+      <section className="hero">
+        <div className="hero-inner">
+          <div className="blob">
+            <img className="crest" src="/chexo.webp" alt="Lambang SMAN 1 Cicalengka" />
+          </div>
+          <div className="hero-copy">
+            <div className="eyebrow"><span className="icon" style={{fontSize:'15px'}}>bolt</span> Khusus mapel Informatika · Chexo</div>
+            <h1>Ruang belajar <span className="accent">Informatika</span> anak Chexo.</h1>
+            <p>Chexo itu sebutan akrab buat SMAN 1 Cicalengka — dan ruang ini rumah digital khusus mapel Informatika: materi, tugas, kuis, tempat ngoding langsung, sampai galeri karya, semuanya di satu tempat.</p>
             <div className="hero-actions">
-              <Link className="btn-tonal" href="/materi">Lihat jalur belajar</Link>
-              <Link className="btn-filled" href="/login" style={{background:'var(--on-primary-container)', color:'var(--primary-container)'}}>Buka portal saya <span className="icon">arrow_forward</span></Link>
+              <Link className="btn btn-filled" href="/materi"><span className="icon">explore</span>Mulai belajar</Link>
+              <Link className="btn btn-tonal" href="/playground"><span className="icon">terminal</span>Coba Playground</Link>
             </div>
           </div>
         </div>
+      </section>
+
+      <div className="beans">
+        <div className="bean"><div className="bean-icon">8</div><span className="bean-text">Elemen inti Informatika</span></div>
+        <div className="bean"><div className="bean-icon">3</div><span className="bean-text">Kegiatan menanti dikerjakan</span></div>
+        <div className="bean"><div className="bean-icon">2</div><span className="bean-text">Cara latihan coding</span></div>
+        <div className="bean"><div className="bean-icon">1</div><span className="bean-text">Ruang belajar terpadu</span></div>
       </div>
 
-      <div className="chip-row">
-        <div className="stat-chip"><div className="num-badge">8</div><span>Elemen inti Informatika</span></div>
-        <div className="stat-chip"><div className="num-badge">3</div><span>Kegiatan menanti dikerjakan</span></div>
-        <div className="stat-chip"><div className="num-badge">2</div><span>Cara latihan coding</span></div>
-        <div className="stat-chip"><div className="num-badge">1</div><span>Ruang belajar terpadu</span></div>
-      </div>
-
-      <section>
-        <h2 className="section-title">Jalur Belajar</h2>
-        <p className="section-sub">Enam modul, dari konsep dasar sampai praktik langsung.</p>
-        <div className="card-grid">
+      <section className="section">
+        <div className="section-head">
+          <div><h2>Jalur Belajar</h2><p className="section-subtitle">Enam modul, dari konsep dasar sampai praktik langsung.</p></div>
+          <Link href="/materi">Lihat semua →</Link>
+        </div>
+        <div className="m-grid">
           {materials.slice(0,6).map((m: any, i: number) => {
             const badges = ['badge-a','badge-b','badge-c'];
             return (
               <div key={m.id} className="m-card">
-                <div className={`badge-circle ${badges[i%3]}`}>
+                <div className={`m-icon ${badges[i%3]}`}>
                   <span className="icon">lightbulb</span>
                 </div>
                 <h3>{m.title}</h3>
@@ -47,21 +51,22 @@ export default function Home() {
         </div>
       </section>
 
-      <section>
-        <h2 className="section-title">Yang Perlu Dikerjakan</h2>
-        <p className="section-sub">Daftar kegiatan kelas yang sedang berjalan.</p>
-        <div style={{background:'var(--surface)', borderRadius:'20px', overflow:'hidden', boxShadow:'0 1px 2px rgba(0,0,0,0.08)'}}>
+      <section className="section section-tinted">
+        <div className="section-head">
+          <div><h2>Yang Perlu Dikerjakan</h2><p className="section-subtitle">Kegiatan kelas yang sedang berjalan.</p></div>
+        </div>
+        <div className="tasklist">
           {tasks.slice(0,3).map((t: any) => (
-            <div key={t.id} style={{display:'flex', alignItems:'flex-start', gap:'16px', padding:'18px 22px', borderBottom:'1px solid var(--outline-variant)'}}>
-              <div style={{width:'40px', height:'40px', borderRadius:'50%', display:'flex', alignItems:'center', justifyContent:'center', background:'var(--surface-container-high)', color:'var(--on-surface-variant)'}}><span className="icon">schedule</span></div>
-              <div style={{flex:1}}>
-                <div style={{fontSize:'12px', color:'var(--on-surface-variant)', marginBottom:'2px'}}>TUGAS · XI-1</div>
-                <h3 style={{fontSize:'15px', fontWeight:'500', margin:'0 0 4px'}}>{t.title}</h3>
-                <p style={{fontSize:'13px', color:'var(--on-surface-variant)', margin:'0'}}>{t.desc}</p>
+            <div key={t.id} className="task-row">
+              <div className="task-status"><span className="icon">schedule</span></div>
+              <div className="task-body">
+                <div className="task-meta">Tugas · XI-1</div>
+                <h3>{t.title}</h3>
+                <p>{t.desc}</p>
               </div>
-              <div style={{display:'flex', flexDirection:'column', alignItems:'flex-end', gap:'6px'}}>
-                <span style={{fontSize:'11px', fontWeight:'500', padding:'5px 12px', borderRadius:'100px', background:'var(--tertiary-container)', color:'var(--on-tertiary-container)'}}>Belum dikerjakan</span>
-                <span style={{fontSize:'12px', color:'var(--on-surface-variant)'}}>Tenggat {new Date(t.due).toLocaleDateString('id-ID', {day:'2-digit', month:'short'})}</span>
+              <div className="task-right">
+                <span className="task-chip pending">Belum dikerjakan</span>
+                <span className="task-date">Tenggat {new Date(t.due).toLocaleDateString('id-ID', {day:'2-digit', month:'short'})}</span>
               </div>
             </div>
           ))}
