@@ -1,7 +1,12 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
+import dynamic from 'next/dynamic';
 import { Shell } from '@/components/shell';
+
+const Editor = dynamic(() => import('@monaco-editor/react'), { ssr: false });
+
+const PYODIDE_URL = 'https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js';
 
 const starterHtml = `<main class="app">
   <h1>Hello, CHEXO!</h1>
@@ -31,16 +36,46 @@ const starterJs = `document.querySelector('#hello')?.addEventListener('click', (
   alert('Halo dari JavaScript!');
 });`;
 
-type Tab = 'html' | 'css' | 'js';
+const starterPy = `# Coba edit dan klik Run
+def fibonacci(n):
+    a, b = 0, 1
+    for _ in range(n):
+        yield a
+        a, b = b, a + b
+
+print("10 angka pertama deret Fibonacci:")
+print(list(fibonacci(10)))`;
+
+type Workspace = 'web' | 'python';
+type WebTab = 'html' | 'css' | 'js';
+
+function loadScriptOnce(src: string) {
+  return new Promise<void>((resolve, reject) => {
+    if (document.querySelector(`script[src="${src}"]`)) return resolve();
+    const s = document.createElement('script');
+    s.src = src;
+    s.onload = () => resolve();
+    s.onerror = () => reject(new Error('Gagal memuat runtime Python.'));
+    document.body.appendChild(s);
+  });
+}
 
 export default function Playground() {
-  const [tab, setTab] = useState<Tab>('html');
+  const [workspace, setWorkspace] = useState<Workspace>('web');
+  const [webTab, setWebTab] = useState<WebTab>('html');
   const [html, setHtml] = useState(starterHtml);
   const [css, setCss] = useState(starterCss);
   const [js, setJs] = useState(starterJs);
+  const [py, setPy] = useState(starterPy);
+  const [pyOutput, setPyOutput] = useState('Klik "Run" untuk menjalankan kode Python.');
+  const [pyRunning, setPyRunning] = useState(false);
+  const pyodideRef = useRef<any>(null);
 
-  const code = tab === 'html' ? html : tab === 'css' ? css : js;
-  const setCode = tab === 'html' ? setHtml : tab === 'css' ? setCss : setJs;
+  const webFiles: Record<WebTab, { label: string; icon: string; value: string; set: (v: string) => void; lang: string }> = {
+    html: { label: 'index.html', icon: 'html', value: html, set: setHtml, lang: 'html' },
+    css: { label: 'style.css', icon: 'css', value: css, set: setCss, lang: 'css' },
+    js: { label: 'script.js', icon: 'js', value: js, set: setJs, lang: 'javascript' },
+  };
 
   const preview = useMemo(() => `<!doctype html>
 <html>
@@ -48,41 +83,101 @@ export default function Playground() {
 <body>${html}<script>${js.replace(/<\/script>/gi, '<\\/script>')}<\/script></body>
 </html>`, [html, css, js]);
 
-  return <Shell><div className="container">
-    <section className="page-head">
-      <div className="eyebrow">CHEXO Playground</div>
-      <h1>Belajar dengan mencoba.</h1>
-      <p>Editor HTML, CSS, dan JavaScript dengan live preview langsung di browser.</p>
-    </section>
+  const runPython = async () => {
+    setPyRunning(true);
+    setPyOutput('Menjalankan...');
+    try {
+      if (!pyodideRef.current) {
+        setPyOutput('Menyiapkan runtime Python (pertama kali agak lama, ~10-20 detik)...');
+        await loadScriptOnce(PYODIDE_URL);
+        pyodideRef.current = await (window as any).loadPyodide();
+      }
+      const pyodide = pyodideRef.current;
+      const lines: string[] = [];
+      pyodide.setStdout({ batched: (s: string) => lines.push(s) });
+      pyodide.setStderr({ batched: (s: string) => lines.push(s) });
+      await pyodide.runPythonAsync(py);
+      setPyOutput(lines.length ? lines.join('\n') : '(tidak ada output — coba tambahkan print())');
+    } catch (err: any) {
+      setPyOutput(`Error:\n${err?.message || String(err)}`);
+    } finally {
+      setPyRunning(false);
+    }
+  };
 
-    <section className="section">
-      <div className="playground-toolbar" style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:12,marginBottom:12}}>
-        <div className="playground-tabs" role="tablist" aria-label="Bahasa pemrograman">
-          {([['html','HTML'],['css','CSS'],['js','JavaScript']] as const).map(([value,label]) => <button key={value} type="button" role="tab" aria-selected={tab === value} onClick={() => setTab(value)} className={`playground-tab ${tab === value ? 'active' : ''}`}>{label}</button>)}
-        </div>
-        <span className="tag">Live Preview</span>
+  return (
+    <Shell>
+      <div className="container">
+        <section className="page-head">
+          <div className="eyebrow">CHEXO Playground</div>
+          <h1>Belajar dengan mencoba.</h1>
+          <p>Editor sekelas VS Code, langsung di browser. Pilih Web (HTML/CSS/JS) atau Python.</p>
+        </section>
+
+        <section className="section">
+          <div className="vsc">
+            <div className="vsc-topbar">
+              <div className="vsc-dots"><span /><span /><span /></div>
+              <div className="vsc-workspace">
+                <button className={workspace === 'web' ? 'active' : ''} onClick={() => setWorkspace('web')}>🌐 Web</button>
+                <button className={workspace === 'python' ? 'active' : ''} onClick={() => setWorkspace('python')}>🐍 Python</button>
+              </div>
+              {workspace === 'python' && (
+                <button className="vsc-run" onClick={() => void runPython()} disabled={pyRunning}>
+                  {pyRunning ? 'Running…' : '▶ Run'}
+                </button>
+              )}
+            </div>
+
+            <div className="vsc-body">
+              <div className="vsc-activitybar">
+                <span className="icon">description</span>
+                <span className="icon">search</span>
+                <span className="icon">source_control</span>
+                <span className="icon">extension</span>
+              </div>
+
+              <div className="vsc-main">
+                <div className="vsc-tabs">
+                  {workspace === 'web'
+                    ? (Object.keys(webFiles) as WebTab[]).map((k) => (
+                        <button key={k} className={`vsc-tab ${webTab === k ? 'active' : ''}`} onClick={() => setWebTab(k)}>
+                          {webFiles[k].label}
+                        </button>
+                      ))
+                    : <button className="vsc-tab active">main.py</button>}
+                </div>
+
+                <div className="vsc-editor">
+                  <Editor
+                    height="480px"
+                    theme="vs-dark"
+                    language={workspace === 'web' ? webFiles[webTab].lang : 'python'}
+                    value={workspace === 'web' ? webFiles[webTab].value : py}
+                    onChange={(v) => (workspace === 'web' ? webFiles[webTab].set(v || '') : setPy(v || ''))}
+                    options={{ fontSize: 13, minimap: { enabled: false }, scrollBeyondLastLine: false, automaticLayout: true, padding: { top: 12 } }}
+                  />
+                </div>
+              </div>
+
+              <div className="vsc-side">
+                <div className="vsc-side-head">{workspace === 'web' ? 'PREVIEW' : 'TERMINAL'}</div>
+                {workspace === 'web' ? (
+                  <iframe className="vsc-preview" title="Preview" srcDoc={preview} sandbox="allow-scripts" />
+                ) : (
+                  <pre className="vsc-terminal">{pyOutput}</pre>
+                )}
+              </div>
+            </div>
+
+            <div className="vsc-statusbar">
+              <span>CHEXO Playground</span>
+              <span>{workspace === 'web' ? webFiles[webTab].lang.toUpperCase() : 'PYTHON 3 (Pyodide)'}</span>
+              <span>UTF-8</span>
+            </div>
+          </div>
+        </section>
       </div>
-
-      <div className="playground-layout" style={{display:'grid',gridTemplateColumns:'minmax(0,1fr) minmax(0,1fr)',gap:16}}>
-        <div className="playground-editor-panel">
-          <div className="tag" style={{marginBottom:8}}>Editor · {tab === 'html' ? 'HTML' : tab === 'css' ? 'CSS' : 'JavaScript'}</div>
-          <textarea className="editor playground-editor" spellCheck={false} value={code} onChange={e => setCode(e.target.value)} aria-label={`${tab} code editor`} />
-        </div>
-        <div className="playground-preview-panel">
-          <div className="tag" style={{marginBottom:8}}>Preview</div>
-          <iframe className="preview playground-preview" title="CHEXO Playground Preview" srcDoc={preview} sandbox="allow-scripts" />
-        </div>
-      </div>
-    </section>
-
-    <style jsx>{`
-      .playground-tabs { display:flex; gap:6px; padding:4px; border:1px solid var(--border); border-radius:12px; width:max-content; }
-      .playground-tab { border:0; background:transparent; border-radius:8px; padding:8px 14px; cursor:pointer; font:inherit; color:inherit; }
-      .playground-tab.active { background:var(--primary); color:white; }
-      .playground-editor { width:100%; min-height:520px; resize:vertical; box-sizing:border-box; font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:13px; line-height:1.65; tab-size:2; }
-      .playground-preview { width:100%; min-height:520px; border:1px solid var(--border); border-radius:12px; background:white; }
-      @media (max-width: 900px) { .playground-layout { grid-template-columns:1fr !important; } .playground-editor,.playground-preview { min-height:420px; } }
-      @media (max-width: 520px) { .playground-toolbar { align-items:flex-start !important; flex-direction:column; } .playground-tabs { width:100%; } .playground-tab { flex:1; } }
-    `}</style>
-  </div></Shell>;
+    </Shell>
+  );
 }
