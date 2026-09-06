@@ -1,9 +1,9 @@
 'use client';
 
-import { tasks as fallbackTasks } from '@/lib/data';
+import { tasks as taskShape } from '@/lib/data';
 import { getSupabaseBrowserClient } from '@/lib/supabase';
 
-export type Task = (typeof fallbackTasks)[number];
+export type Task = (typeof taskShape)[number];
 
 type AssignmentRow = {
   id: string;
@@ -27,18 +27,19 @@ function mapAssignment(row: AssignmentRow): Task {
   };
 }
 
-/** Public preview of the nearest-deadline tasks (no per-user submission
- * status — that lives on /tugas). Used on the homepage. */
-export async function fetchTasks(limit = 3): Promise<{ data: Task[]; source: 'supabase' | 'local' }> {
+/** Public preview of the nearest-deadline tasks, straight from Supabase —
+ * no local placeholder data. Empty in Supabase means empty here too. */
+export async function fetchTasks(limit = 3): Promise<{ data: Task[]; source: 'supabase' }> {
   const client = getSupabaseBrowserClient();
-  if (!client) return { data: fallbackTasks, source: 'local' };
+  if (!client) return { data: [], source: 'supabase' };
 
   const { data, error } = await client
     .from('assignments')
     .select('id,title,description,deadline,classes(name)')
+    .eq('published', true)
     .order('deadline', { ascending: true })
     .limit(limit);
 
-  if (error || !data?.length) return { data: fallbackTasks, source: error ? 'local' : 'supabase' };
+  if (error || !data?.length) return { data: [], source: 'supabase' };
   return { data: (data as unknown as AssignmentRow[]).map(mapAssignment), source: 'supabase' };
 }

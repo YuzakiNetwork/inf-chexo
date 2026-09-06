@@ -1,6 +1,6 @@
 'use client';
 
-import { materials as fallbackMaterials, type Material, type MaterialAsset } from '@/lib/data';
+import { type Material, type MaterialAsset } from '@/lib/data';
 import { getSupabaseBrowserClient } from '@/lib/supabase';
 
 type SupabaseMaterial = {
@@ -48,9 +48,9 @@ function mapMaterial(row: SupabaseMaterial): Material {
   };
 }
 
-export async function fetchMaterials(): Promise<{ data: Material[]; source: 'supabase' | 'local' }> {
+export async function fetchMaterials(): Promise<{ data: Material[]; source: 'supabase' }> {
   const client = getSupabaseBrowserClient();
-  if (!client) return { data: fallbackMaterials, source: 'local' };
+  if (!client) return { data: [], source: 'supabase' };
 
   const { data, error } = await client
     .from('materials')
@@ -58,14 +58,14 @@ export async function fetchMaterials(): Promise<{ data: Material[]; source: 'sup
     .eq('published', true)
     .order('created_at', { ascending: true });
 
-  if (error || !data?.length) return { data: fallbackMaterials, source: error ? 'local' : 'supabase' };
+  if (error || !data?.length) return { data: [], source: 'supabase' };
   const rows: SupabaseMaterialRow[] = data as unknown as SupabaseMaterialRow[];
   return { data: rows.map((row: SupabaseMaterialRow) => mapMaterial(row)), source: 'supabase' };
 }
 
-export async function fetchMaterialBySlug(slug: string): Promise<{ data: Material | null; source: 'supabase' | 'local' }> {
+export async function fetchMaterialBySlug(slug: string): Promise<{ data: Material | null; source: 'supabase' }> {
   const client = getSupabaseBrowserClient();
-  if (!client) return { data: fallbackMaterials.find((item) => item.id === slug) ?? null, source: 'local' };
+  if (!client) return { data: null, source: 'supabase' };
 
   const { data, error } = await client
     .from('materials')
@@ -74,6 +74,6 @@ export async function fetchMaterialBySlug(slug: string): Promise<{ data: Materia
     .eq('published', true)
     .maybeSingle();
 
-  if (error || !data) return { data: fallbackMaterials.find((item) => item.id === slug) ?? null, source: 'local' };
+  if (error || !data) return { data: null, source: 'supabase' };
   return { data: mapMaterial(data as unknown as SupabaseMaterial), source: 'supabase' };
 }
