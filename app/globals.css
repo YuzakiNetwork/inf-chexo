@@ -715,11 +715,11 @@ footer {
 }
 .vsc-topbar {
   display: flex; align-items: center; gap: 14px; background: #323233;
-  padding: 8px 14px; border-bottom: 1px solid #2d2d2d;
+  padding: 8px 14px; border-bottom: 1px solid #2d2d2d; flex-wrap: wrap;
 }
 .vsc-dots { display: flex; gap: 6px; }
 .vsc-dots span { width: 11px; height: 11px; border-radius: 50%; background: #5a5a5a; display: inline-block; }
-.vsc-workspace { display: flex; gap: 4px; margin-left: 4px; }
+.vsc-workspace { display: flex; gap: 4px; margin-left: 4px; flex-wrap: wrap; }
 .vsc-workspace button {
   background: transparent; border: 1px solid #4a4a4a; color: #ccc; border-radius: 6px;
   padding: 4px 12px; font-size: 12px; cursor: pointer;
