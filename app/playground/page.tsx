@@ -9,73 +9,41 @@ const Editor = dynamic(() => import('@monaco-editor/react'), { ssr: false });
 
 const PYODIDE_URL = 'https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js';
 
-const starterHtml = `<main class="app">
-  <h1>Hello, CHEXO!</h1>
-  <p>Edit HTML, CSS, dan JavaScript di tab sebelah kiri.</p>
-  <button id="hello">Klik saya</button>
-</main>`;
+type FileItem = { id: string; name: string; content: string };
+type RunKind = 'web' | 'python' | 'jawascript' | 'c' | 'cpp' | 'none';
 
-const starterCss = `body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  background: #f4f6fb;
+function extOf(name: string) {
+  return name.includes('.') ? name.split('.').pop()!.toLowerCase() : '';
 }
 
-.app {
-  max-width: 640px;
-  margin: 40px auto;
-  padding: 32px;
-  border-radius: 16px;
-  background: white;
-  box-shadow: 0 12px 40px rgba(15, 23, 42, .08);
+const MONACO_LANG: Record<string, string> = {
+  html: 'html', htm: 'html', css: 'css', js: 'javascript', mjs: 'javascript',
+  py: 'python', jawa: 'javascript', c: 'c', h: 'c', cpp: 'cpp', cc: 'cpp', cxx: 'cpp', hpp: 'cpp',
+};
+
+function monacoLang(name: string) {
+  return MONACO_LANG[extOf(name)] || 'plaintext';
 }
 
-h1 { color: #334a91; }
-button { padding: 10px 14px; border: 0; border-radius: 8px; cursor: pointer; }`;
+function runKindOf(name: string): RunKind {
+  const ext = extOf(name);
+  if (['html', 'htm', 'css', 'js', 'mjs'].includes(ext)) return 'web';
+  if (ext === 'py') return 'python';
+  if (ext === 'jawa') return 'jawascript';
+  if (['c', 'h'].includes(ext)) return 'c';
+  if (['cpp', 'cc', 'cxx', 'hpp'].includes(ext)) return 'cpp';
+  return 'none';
+}
 
-const starterJs = `document.querySelector('#hello')?.addEventListener('click', () => {
-  alert('Halo dari JavaScript!');
-});`;
-
-const starterPy = `# Coba edit dan klik Run
-def fibonacci(n):
-    a, b = 0, 1
-    for _ in range(n):
-        yield a
-        a, b = b, a + b
-
-print("10 angka pertama deret Fibonacci:")
-print(list(fibonacci(10)))`;
-
-const starterJawa = `// JawaScript: JavaScript nganggo basa Jawa
-// https://github.com/arwildo/jawascript
-ono x = 10;
-ono y = 20;
-
-tampilno(x + y);
-
-yen (x < y) {
-    tampilno("x luwih cilik");
-} yen ora {
-    tampilno("x luwih gedhe");
-}`;
-
-const starterC = `#include <stdio.h>
-
-int main() {
-    printf("Halo dari C!\\n");
-    return 0;
-}`;
-
-const starterCpp = `#include <iostream>
-
-int main() {
-    std::cout << "Halo dari C++!" << std::endl;
-    return 0;
-}`;
-
-type Workspace = 'web' | 'python' | 'jawascript' | 'c' | 'cpp';
-type WebTab = 'html' | 'css' | 'js';
+const DEFAULT_FILES: FileItem[] = [
+  { id: 'f1', name: 'index.html', content: `<main class="app">\n  <h1>Hello, CHEXO!</h1>\n  <p>Edit HTML, CSS, dan JavaScript, atau tambah file bahasa lain lewat Explorer.</p>\n  <button id="hello">Klik saya</button>\n</main>` },
+  { id: 'f2', name: 'style.css', content: `body { margin: 0; font-family: Arial, sans-serif; background: #f4f6fb; }\n.app { max-width: 640px; margin: 40px auto; padding: 32px; border-radius: 16px; background: white; box-shadow: 0 12px 40px rgba(15,23,42,.08); }\nh1 { color: #334a91; }\nbutton { padding: 10px 14px; border: 0; border-radius: 8px; cursor: pointer; }` },
+  { id: 'f3', name: 'script.js', content: `document.querySelector('#hello')?.addEventListener('click', () => {\n  alert('Halo dari JavaScript!');\n});` },
+  { id: 'f4', name: 'main.py', content: `# Coba edit dan klik Run\ndef fibonacci(n):\n    a, b = 0, 1\n    for _ in range(n):\n        yield a\n        a, b = b, a + b\n\nprint("10 angka pertama deret Fibonacci:")\nprint(list(fibonacci(10)))` },
+  { id: 'f5', name: 'main.jawa', content: `// JawaScript: JavaScript nganggo basa Jawa\n// https://github.com/arwildo/jawascript\nono x = 10;\nono y = 20;\n\ntampilno(x + y);\n\nyen (x < y) {\n    tampilno("x luwih cilik");\n} yen ora {\n    tampilno("x luwih gedhe");\n}` },
+  { id: 'f6', name: 'main.c', content: `#include <stdio.h>\n\nint main() {\n    printf("Halo dari C!\\n");\n    return 0;\n}` },
+  { id: 'f7', name: 'main.cpp', content: `#include <iostream>\n\nint main() {\n    std::cout << "Halo dari C++!" << std::endl;\n    return 0;\n}` },
+];
 
 function loadScriptOnce(src: string) {
   return new Promise<void>((resolve, reject) => {
@@ -88,53 +56,53 @@ function loadScriptOnce(src: string) {
   });
 }
 
-const WORKSPACES: Array<{ id: Workspace; label: string }> = [
-  { id: 'web', label: '🌐 Web' },
-  { id: 'python', label: '🐍 Python' },
-  { id: 'jawascript', label: '🦉 JawaScript' },
-  { id: 'c', label: 'C' },
-  { id: 'cpp', label: 'C++' },
-];
-
 export default function Playground() {
-  const [workspace, setWorkspace] = useState<Workspace>('web');
-  const [webTab, setWebTab] = useState<WebTab>('html');
-  const [html, setHtml] = useState(starterHtml);
-  const [css, setCss] = useState(starterCss);
-  const [js, setJs] = useState(starterJs);
-  const [py, setPy] = useState(starterPy);
-  const [jawa, setJawa] = useState(starterJawa);
-  const [cCode, setCCode] = useState(starterC);
-  const [cppCode, setCppCode] = useState(starterCpp);
-
-  const [pyOutput, setPyOutput] = useState('Klik "Run" untuk menjalankan kode Python.');
-  const [jawaOutput, setJawaOutput] = useState('Klik "Run" untuk menjalankan kode JawaScript.');
-  const [cOutput, setCOutput] = useState('Klik "Run" untuk compile & jalankan.');
-  const [cppOutput, setCppOutput] = useState('Klik "Run" untuk compile & jalankan.');
-  const [jawaDoc, setJawaDoc] = useState('');
+  const [files, setFiles] = useState<FileItem[]>(DEFAULT_FILES);
+  const [activeId, setActiveId] = useState('f1');
+  const [newName, setNewName] = useState('');
+  const [output, setOutput] = useState('Klik "Run" untuk menjalankan file yang aktif.');
   const [running, setRunning] = useState(false);
+  const [jawaDoc, setJawaDoc] = useState('');
   const pyodideRef = useRef<any>(null);
 
-  const webFiles: Record<WebTab, { label: string; value: string; set: (v: string) => void; lang: string }> = {
-    html: { label: 'index.html', value: html, set: setHtml, lang: 'html' },
-    css: { label: 'style.css', value: css, set: setCss, lang: 'css' },
-    js: { label: 'script.js', value: js, set: setJs, lang: 'javascript' },
+  const active = files.find((f) => f.id === activeId) || files[0];
+  const activeKind = runKindOf(active.name);
+
+  const updateActiveContent = (value: string) => {
+    setFiles((fs) => fs.map((f) => (f.id === active.id ? { ...f, content: value } : f)));
   };
 
-  const preview = useMemo(() => `<!doctype html>
-<html>
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>${css}</style></head>
-<body>${html}<script>${js.replace(/<\/script>/gi, '<\\/script>')}<\/script></body>
-</html>`, [html, css, js]);
+  const addFile = () => {
+    const name = newName.trim();
+    if (!name) return;
+    if (files.some((f) => f.name === name)) { alert('Nama file sudah dipakai.'); return; }
+    const file: FileItem = { id: `f${Date.now()}`, name, content: '' };
+    setFiles((fs) => [...fs, file]);
+    setActiveId(file.id);
+    setNewName('');
+  };
 
-  // JawaScript dijalankan di iframe tersandbox terpisah; console.log
-  // dikirim balik lewat postMessage supaya kode di dalamnya tidak
-  // punya akses ke halaman utama.
+  const deleteFile = (id: string) => {
+    if (files.length <= 1) return;
+    if (!confirm('Hapus file ini?')) return;
+    setFiles((fs) => fs.filter((f) => f.id !== id));
+    if (activeId === id) setActiveId(files.find((f) => f.id !== id)!.id);
+  };
+
+  // Web preview: gabungkan semua file .html/.css/.js/.mjs yang ada, bukan cuma 3 file bawaan.
+  const webPreview = useMemo(() => {
+    const htmlFile = files.find((f) => ['html', 'htm'].includes(extOf(f.name)));
+    const css = files.filter((f) => extOf(f.name) === 'css').map((f) => f.content).join('\n');
+    const js = files.filter((f) => ['js', 'mjs'].includes(extOf(f.name))).map((f) => f.content).join('\n');
+    const body = htmlFile ? htmlFile.content : '<p style="font-family:sans-serif;color:#888">Belum ada file .html</p>';
+    return `<!doctype html><html><head><meta charset="utf-8"><style>${css}</style></head><body>${body}<script>${js.replace(/<\/script>/gi, '<\\/script>')}<\/script></body></html>`;
+  }, [files]);
+
   useEffect(() => {
     function handler(e: MessageEvent) {
       if (e.data?.source !== 'chexo-jawascript') return;
-      if (e.data.type === 'log') setJawaOutput((prev) => (prev === '__running__' ? e.data.text : `${prev}\n${e.data.text}`));
-      if (e.data.type === 'error') setJawaOutput((prev) => `${prev === '__running__' ? '' : prev + '\n'}Error: ${e.data.text}`);
+      if (e.data.type === 'log') setOutput((prev) => (prev === '__running__' ? e.data.text : `${prev}\n${e.data.text}`));
+      if (e.data.type === 'error') setOutput((prev) => `${prev === '__running__' ? '' : prev + '\n'}Error: ${e.data.text}`);
     }
     window.addEventListener('message', handler);
     return () => window.removeEventListener('message', handler);
@@ -142,29 +110,31 @@ export default function Playground() {
 
   const runPython = async () => {
     setRunning(true);
-    setPyOutput('Menjalankan...');
+    setOutput('Menjalankan...');
     try {
       if (!pyodideRef.current) {
-        setPyOutput('Menyiapkan runtime Python (pertama kali agak lama, ~10-20 detik)...');
+        setOutput('Menyiapkan runtime Python (pertama kali agak lama, ~10-20 detik)...');
         await loadScriptOnce(PYODIDE_URL);
         pyodideRef.current = await (window as any).loadPyodide();
       }
       const pyodide = pyodideRef.current;
+      // Tulis semua file .py ke filesystem Pyodide, biar antar-file bisa saling import.
+      files.filter((f) => extOf(f.name) === 'py').forEach((f) => pyodide.FS.writeFile(f.name, f.content));
       const lines: string[] = [];
       pyodide.setStdout({ batched: (s: string) => lines.push(s) });
       pyodide.setStderr({ batched: (s: string) => lines.push(s) });
-      await pyodide.runPythonAsync(py);
-      setPyOutput(lines.length ? lines.join('\n') : '(tidak ada output — coba tambahkan print())');
+      await pyodide.runPythonAsync(active.content);
+      setOutput(lines.length ? lines.join('\n') : '(tidak ada output — coba tambahkan print())');
     } catch (err: any) {
-      setPyOutput(`Error:\n${err?.message || String(err)}`);
+      setOutput(`Error:\n${err?.message || String(err)}`);
     } finally {
       setRunning(false);
     }
   };
 
   const runJawaScript = () => {
-    setJawaOutput('__running__');
-    const translated = translateJawa(jawa);
+    setOutput('__running__');
+    const translated = translateJawa(active.content);
     const doc = `<!doctype html><html><body><script>
 (function(){
   function send(type, text){ parent.postMessage({source:'chexo-jawascript', type, text}, '*'); }
@@ -176,15 +146,18 @@ export default function Playground() {
   };
 
   const runCompiled = async (language: 'c' | 'cpp') => {
-    const code = language === 'c' ? cCode : cppCode;
-    const setOutput = language === 'c' ? setCOutput : setCppOutput;
     setRunning(true);
     setOutput('Meng-compile & menjalankan (layanan compiler publik, mohon tunggu)...');
+    const siblings = files.filter((f) => f.id !== active.id && runKindOf(f.name) === language);
     try {
       const res = await fetch('/api/execute', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ language, code }),
+        body: JSON.stringify({
+          language,
+          code: active.content,
+          codes: siblings.map((f) => ({ file: f.name, code: f.content })),
+        }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Gagal menjalankan kode.');
@@ -197,20 +170,15 @@ export default function Playground() {
   };
 
   const runCurrent = () => {
-    if (workspace === 'python') void runPython();
-    else if (workspace === 'jawascript') runJawaScript();
-    else if (workspace === 'c' || workspace === 'cpp') void runCompiled(workspace);
+    if (activeKind === 'python') void runPython();
+    else if (activeKind === 'jawascript') runJawaScript();
+    else if (activeKind === 'c' || activeKind === 'cpp') void runCompiled(activeKind);
   };
 
-  const editorProps = (() => {
-    switch (workspace) {
-      case 'python': return { language: 'python', value: py, onChange: setPy, fileLabel: 'main.py' };
-      case 'jawascript': return { language: 'javascript', value: jawa, onChange: setJawa, fileLabel: 'main.jawa' };
-      case 'c': return { language: 'c', value: cCode, onChange: setCCode, fileLabel: 'main.c' };
-      case 'cpp': return { language: 'cpp', value: cppCode, onChange: setCppCode, fileLabel: 'main.cpp' };
-      default: return null;
-    }
-  })();
+  const statusLabel: Record<RunKind, string> = {
+    web: 'PREVIEW (HTML/CSS/JS)', python: 'PYTHON 3 (Pyodide)', jawascript: 'JAWASCRIPT',
+    c: 'C (GCC, via Wandbox)', cpp: 'C++ (GCC, via Wandbox)', none: 'PLAINTEXT (tidak bisa dijalankan)',
+  };
 
   return (
     <Shell>
@@ -218,21 +186,15 @@ export default function Playground() {
         <section className="page-head">
           <div className="eyebrow">CHEXO Playground</div>
           <h1>Belajar dengan mencoba.</h1>
-          <p>Editor sekelas VS Code, langsung di browser. Web, Python, JawaScript, C, dan C++.</p>
+          <p>Editor sekelas VS Code. Tambah file apa saja — bahasanya otomatis terdeteksi dari ekstensi.</p>
         </section>
 
         <section className="section">
           <div className="vsc">
             <div className="vsc-topbar">
               <div className="vsc-dots"><span /><span /><span /></div>
-              <div className="vsc-workspace">
-                {WORKSPACES.map((w) => (
-                  <button key={w.id} className={workspace === w.id ? 'active' : ''} onClick={() => setWorkspace(w.id)}>
-                    {w.label}
-                  </button>
-                ))}
-              </div>
-              {workspace !== 'web' && (
+              <span className="vsc-breadcrumb">{active.name}</span>
+              {activeKind !== 'web' && activeKind !== 'none' && (
                 <button className="vsc-run" onClick={runCurrent} disabled={running}>
                   {running ? 'Running…' : '▶ Run'}
                 </button>
@@ -247,57 +209,64 @@ export default function Playground() {
                 <span className="icon">extension</span>
               </div>
 
-              <div className="vsc-main">
-                <div className="vsc-tabs">
-                  {workspace === 'web'
-                    ? (Object.keys(webFiles) as WebTab[]).map((k) => (
-                        <button key={k} className={`vsc-tab ${webTab === k ? 'active' : ''}`} onClick={() => setWebTab(k)}>
-                          {webFiles[k].label}
-                        </button>
-                      ))
-                    : <button className="vsc-tab active">{editorProps?.fileLabel}</button>}
+              <div className="vsc-explorer">
+                <div className="vsc-explorer-head">EXPLORER</div>
+                <div className="vsc-explorer-list">
+                  {files.map((f) => (
+                    <div key={f.id} className={`vsc-file ${f.id === activeId ? 'active' : ''}`} onClick={() => setActiveId(f.id)}>
+                      <span>{f.name}</span>
+                      {files.length > 1 && (
+                        <button onClick={(e) => { e.stopPropagation(); deleteFile(f.id); }} title="Hapus file">×</button>
+                      )}
+                    </div>
+                  ))}
                 </div>
+                <div className="vsc-explorer-add">
+                  <input
+                    placeholder="nama-file.ext"
+                    value={newName}
+                    onChange={(e) => setNewName(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && addFile()}
+                  />
+                  <button onClick={addFile}>+</button>
+                </div>
+              </div>
 
+              <div className="vsc-main">
                 <div className="vsc-editor">
                   <Editor
                     height="480px"
                     theme="vs-dark"
-                    language={workspace === 'web' ? webFiles[webTab].lang : editorProps!.language}
-                    value={workspace === 'web' ? webFiles[webTab].value : editorProps!.value}
-                    onChange={(v) => (workspace === 'web' ? webFiles[webTab].set(v || '') : editorProps!.onChange(v || ''))}
+                    path={active.name}
+                    language={monacoLang(active.name)}
+                    value={active.content}
+                    onChange={(v) => updateActiveContent(v || '')}
                     options={{ fontSize: 13, minimap: { enabled: false }, scrollBeyondLastLine: false, automaticLayout: true, padding: { top: 12 } }}
                   />
                 </div>
               </div>
 
               <div className="vsc-side">
-                <div className="vsc-side-head">{workspace === 'web' ? 'PREVIEW' : 'TERMINAL'}</div>
-                {workspace === 'web' && <iframe className="vsc-preview" title="Preview" srcDoc={preview} sandbox="allow-scripts" />}
-                {workspace === 'python' && <pre className="vsc-terminal">{pyOutput}</pre>}
-                {workspace === 'jawascript' && (
+                <div className="vsc-side-head">{activeKind === 'web' ? 'PREVIEW' : 'TERMINAL'}</div>
+                {activeKind === 'web' && <iframe className="vsc-preview" title="Preview" srcDoc={webPreview} sandbox="allow-scripts" />}
+                {activeKind === 'jawascript' && (
                   <>
-                    <pre className="vsc-terminal">{jawaOutput === '__running__' ? 'Menjalankan...' : jawaOutput}</pre>
+                    <pre className="vsc-terminal">{output === '__running__' ? 'Menjalankan...' : output}</pre>
                     <iframe style={{ display: 'none' }} sandbox="allow-scripts" srcDoc={jawaDoc} title="jawascript-runner" />
                   </>
                 )}
-                {workspace === 'c' && <pre className="vsc-terminal">{cOutput}</pre>}
-                {workspace === 'cpp' && <pre className="vsc-terminal">{cppOutput}</pre>}
+                {(activeKind === 'python' || activeKind === 'c' || activeKind === 'cpp') && <pre className="vsc-terminal">{output}</pre>}
+                {activeKind === 'none' && <pre className="vsc-terminal">Ekstensi file ini belum dikenali untuk dijalankan, tapi tetap bisa diedit &amp; disimpan.</pre>}
               </div>
             </div>
 
             <div className="vsc-statusbar">
               <span>CHEXO Playground</span>
-              <span>
-                {workspace === 'web' ? webFiles[webTab].lang.toUpperCase()
-                  : workspace === 'python' ? 'PYTHON 3 (Pyodide)'
-                  : workspace === 'jawascript' ? 'JAWASCRIPT'
-                  : workspace === 'c' ? 'C (GCC, via Wandbox)'
-                  : 'C++ (GCC, via Wandbox)'}
-              </span>
+              <span>{statusLabel[activeKind]}</span>
               <span>UTF-8</span>
             </div>
           </div>
-          {(workspace === 'c' || workspace === 'cpp') && (
+          {(activeKind === 'c' || activeKind === 'cpp') && (
             <p className="muted" style={{ fontSize: 12, marginTop: 8 }}>
               Compile &amp; run C/C++ memakai layanan publik <a href="https://wandbox.org" target="_blank" rel="noreferrer">Wandbox</a> — butuh koneksi internet dan bisa agak lambat saat sibuk.
             </p>

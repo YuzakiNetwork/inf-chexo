@@ -6,7 +6,7 @@ const COMPILER_BY_LANG: Record<string, string> = {
 };
 
 export async function POST(req: Request) {
-  let body: { language?: string; code?: string };
+  let body: { language?: string; code?: string; codes?: Array<{ file: string; code: string }> };
   try {
     body = await req.json();
   } catch {
@@ -31,6 +31,7 @@ export async function POST(req: Request) {
       body: JSON.stringify({
         compiler,
         code: body.code,
+        codes: Array.isArray(body.codes) ? body.codes : undefined,
         options: 'warning',
         save: false,
       }),
